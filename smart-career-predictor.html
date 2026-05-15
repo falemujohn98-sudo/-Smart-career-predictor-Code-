@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Smart Career Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0D1B3E;
+  --indigo:#2D3A8C;
+  --violet:#5B4FD0;
+  --lilac:#A89FFF;
+  --mint:#00C9A7;
+  --amber:#FFB547;
+  --coral:#FF6B6B;
+  --cream:#F7F5F0;
+  --white:#FFFFFF;
+  --gray1:#F4F3FF;
+  --gray2:#E8E6FF;
+  --gray3:#8B89A8;
+  --text:#1A1A2E;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 4px 24px rgba(91,79,208,0.12);
+  --shadow-lg:0 12px 40px rgba(13,27,62,0.18);
+}
+html,body{height:100%;background:#F0EFFA;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);}
+
+/* PHONE FRAME */
+#frame{
+  width:390px;min-height:844px;
+  background:var(--white);
+  margin:20px auto;
+  border-radius:44px;
+  box-shadow:var(--shadow-lg),0 0 0 8px #1A1A2E,0 0 0 10px #2D3A8C;
+  overflow:hidden;
+  position:relative;
+}
+/* Status bar */
+.status-bar{
+  height:44px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;font-size:12px;font-weight:600;color:var(--text);
+  background:transparent;position:relative;z-index:10;
+}
+.status-time{font-size:15px;font-weight:700;}
+.status-icons{display:flex;gap:5px;align-items:center;}
+
+/* SCREENS */
+.screen{display:none;height:calc(844px - 44px);overflow-y:auto;overflow-x:hidden;position:relative;}
+.screen.active{display:block;}
+.screen::-webkit-scrollbar{width:0;}
+
+/* ─── SPLASH ─── */
+#s-splash{
+  background:linear-gradient(160deg,var(--navy) 0%,var(--indigo) 45%,var(--violet) 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:40px 32px;
+}
+#s-splash.active{display:flex;}
+.splash-orb{
+  width:120px;height:120px;border-radius:36px;
+  background:linear-gradient(135deg,var(--mint),var(--lilac));
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:28px;font-size:52px;
+  box-shadow:0 20px 60px rgba(0,201,167,0.35);
+  animation:pulse 3s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+.splash-title{font-family:'Fraunces',serif;font-size:32px;font-weight:600;color:#fff;line-height:1.2;margin-bottom:12px;}
+.splash-sub{font-size:15px;color:rgba(255,255,255,0.65);line-height:1.6;margin-bottom:48px;}
+.splash-dots{display:flex;gap:8px;justify-content:center;margin-bottom:32px;}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);}
+.dot.active{background:var(--mint);width:24px;border-radius:4px;}
+.btn-primary{
+  width:100%;padding:18px;border-radius:var(--radius);border:none;
+  background:linear-gradient(135deg,var(--mint),#00A88E);
+  color:#fff;font-size:16px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  box-shadow:0 8px 24px rgba(0,201,167,0.4);
+  transition:all 0.2s;
+}
+.btn-primary:active{transform:scale(0.98);}
+.btn-ghost{
+  width:100%;padding:16px;border-radius:var(--radius);
+  border:1.5px solid rgba(255,255,255,0.25);background:transparent;
+  color:rgba(255,255,255,0.8);font-size:15px;font-weight:600;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;margin-top:12px;
+  transition:all 0.2s;
+}
+
+/* ─── HEADER ─── */
+.top-bar{
+  padding:16px 24px 12px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;background:var(--white);z-index:10;
+}
+.back-btn{
+  width:40px;height:40px;border-radius:12px;border:1.5px solid #E8E6FF;
+  background:var(--white);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;flex-shrink:0;
+}
+.top-title{font-size:17px;font-weight:700;flex:1;}
+.progress-pill{
+  background:var(--gray2);border-radius:999px;padding:6px 14px;
+  font-size:12px;font-weight:600;color:var(--violet);
+}
+
+/* ─── ONBOARDING ─── */
+#s-onboard{
+  background:linear-gradient(160deg,var(--navy) 0%,var(--indigo) 100%);
+  display:flex;flex-direction:column;
+}
+#s-onboard.active{display:flex;}
+.onboard-visual{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:40px 32px 20px;
+}
+.onboard-card{
+  width:100%;border-radius:28px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
+  padding:32px 24px;text-align:center;
+}
+.onboard-emoji{font-size:64px;margin-bottom:20px;display:block;}
+.onboard-title{font-family:'Fraunces',serif;font-size:26px;color:#fff;margin-bottom:12px;line-height:1.3;}
+.onboard-desc{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;}
+.onboard-bottom{padding:24px 32px 36px;flex-shrink:0;}
+
+/* ─── AUTH ─── */
+.auth-wrapper{padding:24px;}
+.auth-logo{text-align:center;margin-bottom:28px;}
+.auth-logo-icon{
+  width:64px;height:64px;border-radius:20px;
+  background:linear-gradient(135deg,var(--violet),var(--indigo));
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:28px;margin-bottom:12px;
+  box-shadow:0 8px 24px rgba(91,79,208,0.3);
+}
+.auth-logo h2{font-family:'Fraunces',serif;font-size:22px;color:var(--navy);}
+.auth-logo p{font-size:13px;color:var(--gray3);margin-top:4px;}
+.field-label{font-size:13px;font-weight:600;color:var(--gray3);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.5px;}
+.field-input{
+  width:100%;padding:14px 16px;border-radius:var(--radius-sm);
+  border:1.5px solid #E8E6FF;background:var(--gray1);
+  font-size:15px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;
+  outline:none;transition:border 0.2s;margin-bottom:16px;
+}
+.field-input:focus{border-color:var(--violet);}
+.field-select{
+  width:100%;padding:14px 16px;border-radius:var(--radius-sm);
+  border:1.5px solid #E8E6FF;background:var(--gray1);
+  font-size:15px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;
+  outline:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238B89A8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  cursor:pointer;margin-bottom:16px;
+}
+.auth-switch{text-align:center;margin-top:16px;font-size:14px;color:var(--gray3);}
+.auth-switch a{color:var(--violet);font-weight:600;cursor:pointer;text-decoration:none;}
+.btn-violet{
+  width:100%;padding:17px;border-radius:var(--radius);border:none;
+  background:linear-gradient(135deg,var(--violet),var(--indigo));
+  color:#fff;font-size:16px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  box-shadow:0 8px 24px rgba(91,79,208,0.35);
+  transition:all 0.2s;
+}
+.btn-violet:active{transform:scale(0.98);}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+.divider span{height:1px;flex:1;background:#E8E6FF;}
+.divider p{font-size:13px;color:var(--gray3);}
+
+/* ─── PROFILE ─── */
+.profile-wrap{padding:0 24px 32px;}
+.section-head{margin-bottom:20px;}
+.section-head h3{font-size:22px;font-weight:700;color:var(--navy);}
+.section-head p{font-size:14px;color:var(--gray3);margin-top:4px;line-height:1.5;}
+
+.class-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.class-chip{
+  padding:14px 10px;border-radius:var(--radius-sm);
+  border:1.5px solid #E8E6FF;background:var(--gray1);
+  text-align:center;cursor:pointer;transition:all 0.2s;
+}
+.class-chip.active{background:var(--gray2);border-color:var(--violet);}
+.class-chip .level{font-size:12px;color:var(--gray3);font-weight:600;}
+.class-chip .name{font-size:14px;font-weight:700;color:var(--navy);margin-top:2px;}
+
+.subject-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;border-bottom:1px solid #F0EFFA;
+}
+.subject-name{font-size:15px;font-weight:600;color:var(--text);}
+.grade-select{
+  padding:8px 12px;border-radius:8px;border:1.5px solid #E8E6FF;
+  background:var(--gray1);font-size:13px;font-weight:600;
+  color:var(--violet);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+}
+
+.upload-zone{
+  border:2px dashed #C4BFF5;border-radius:var(--radius);
+  padding:32px;text-align:center;cursor:pointer;
+  background:var(--gray1);margin-bottom:16px;
+  transition:all 0.2s;
+}
+.upload-zone:hover{border-color:var(--violet);background:var(--gray2);}
+.upload-icon{font-size:40px;margin-bottom:12px;}
+.upload-zone h4{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.upload-zone p{font-size:13px;color:var(--gray3);}
+
+.interest-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.interest-chip{
+  padding:14px;border-radius:var(--radius-sm);
+  border:1.5px solid #E8E6FF;background:var(--gray1);
+  cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:10px;
+}
+.interest-chip.active{background:var(--gray2);border-color:var(--violet);}
+.interest-chip .ic-icon{font-size:22px;}
+.interest-chip .ic-label{font-size:13px;font-weight:600;color:var(--navy);}
+
+/* ─── ASSESSMENT HUB ─── */
+.hub-header{
+  background:linear-gradient(135deg,var(--navy),var(--indigo));
+  padding:32px 24px 24px;
+}
+.hub-greeting{font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:6px;}
+.hub-name{font-family:'Fraunces',serif;font-size:26px;color:#fff;margin-bottom:4px;}
+.hub-sub{font-size:14px;color:rgba(255,255,255,0.6);}
+.hub-progress-card{
+  background:rgba(255,255,255,0.1);border-radius:var(--radius);
+  padding:16px;margin-top:20px;border:1px solid rgba(255,255,255,0.12);
+}
+.hub-progress-label{font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:8px;font-weight:600;}
+.hub-progress-bar{height:6px;background:rgba(255,255,255,0.15);border-radius:999px;overflow:hidden;}
+.hub-progress-fill{height:100%;background:linear-gradient(90deg,var(--mint),#00FFD1);border-radius:999px;transition:width 0.5s;}
+.hub-progress-text{font-size:13px;color:rgba(255,255,255,0.8);margin-top:8px;font-weight:600;}
+
+.hub-body{padding:24px;}
+.hub-tests{display:flex;flex-direction:column;gap:12px;}
+.test-card{
+  border-radius:var(--radius);padding:18px;
+  border:1.5px solid #E8E6FF;background:var(--white);
+  display:flex;align-items:center;gap:16px;
+  cursor:pointer;transition:all 0.2s;
+  box-shadow:0 2px 8px rgba(91,79,208,0.06);
+}
+.test-card:hover{box-shadow:var(--shadow);border-color:var(--lilac);}
+.test-icon-wrap{
+  width:52px;height:52px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0;
+}
+.test-info{flex:1;}
+.test-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.test-desc{font-size:12px;color:var(--gray3);line-height:1.5;}
+.test-badge{
+  padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;
+  white-space:nowrap;
+}
+.badge-done{background:#E0FFF8;color:#00A88E;}
+.badge-pending{background:var(--gray2);color:var(--violet);}
+.badge-locked{background:#F4F4F4;color:#999;}
+
+/* ─── TEST SCREENS ─── */
+.test-header{
+  padding:20px 24px 16px;
+  background:var(--white);position:sticky;top:0;z-index:10;
+}
+.test-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.test-type-label{font-size:12px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:0.5px;}
+.q-counter{font-size:13px;color:var(--gray3);font-weight:600;}
+.progress-track{height:4px;background:#F0EFFA;border-radius:999px;overflow:hidden;}
+.progress-track-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--mint));border-radius:999px;transition:width 0.4s;}
+
+.q-body{padding:24px;}
+.q-text{font-size:18px;font-weight:600;color:var(--navy);line-height:1.5;margin-bottom:24px;}
+.q-options{display:flex;flex-direction:column;gap:12px;}
+.q-opt{
+  padding:16px 18px;border-radius:var(--radius);
+  border:1.5px solid #E8E6FF;background:var(--gray1);
+  font-size:15px;color:var(--text);cursor:pointer;
+  transition:all 0.2s;display:flex;align-items:center;gap:12px;
+  font-family:'Plus Jakarta Sans',sans-serif;text-align:left;
+}
+.q-opt.selected{background:var(--gray2);border-color:var(--violet);color:var(--violet);font-weight:600;}
+.q-opt-letter{
+  width:32px;height:32px;border-radius:50%;border:1.5px solid #C4BFF5;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--violet);flex-shrink:0;
+}
+.q-opt.selected .q-opt-letter{background:var(--violet);color:#fff;border-color:var(--violet);}
+.q-nav{
+  display:flex;gap:12px;padding:0 24px 24px;
+  position:sticky;bottom:0;background:var(--white);padding-top:12px;
+}
+.btn-outline{
+  flex:1;padding:15px;border-radius:var(--radius);
+  border:1.5px solid var(--violet);background:transparent;
+  color:var(--violet);font-size:15px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;
+}
+.btn-next{
+  flex:2;padding:15px;border-radius:var(--radius);border:none;
+  background:linear-gradient(135deg,var(--violet),var(--indigo));
+  color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;
+}
+.scale-row{display:flex;gap:8px;justify-content:space-between;}
+.scale-btn{
+  flex:1;padding:14px 4px;border-radius:var(--radius-sm);
+  border:1.5px solid #E8E6FF;background:var(--gray1);
+  font-size:15px;font-weight:700;color:var(--gray3);cursor:pointer;
+  text-align:center;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.scale-btn.selected{background:var(--violet);border-color:var(--violet);color:#fff;}
+.scale-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--gray3);margin-top:6px;}
+
+/* ─── PROCESSING ─── */
+#s-processing{
+  background:linear-gradient(160deg,var(--navy) 0%,var(--indigo) 60%,var(--violet) 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:40px 32px;
+}
+#s-processing.active{display:flex;}
+.proc-brain{font-size:80px;margin-bottom:28px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.proc-title{font-family:'Fraunces',serif;font-size:26px;color:#fff;margin-bottom:12px;}
+.proc-sub{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:36px;}
+.proc-steps{display:flex;flex-direction:column;gap:14px;width:100%;}
+.proc-step{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(255,255,255,0.08);border-radius:var(--radius-sm);
+  padding:14px 16px;border:1px solid rgba(255,255,255,0.1);
+}
+.proc-step-icon{font-size:20px;}
+.proc-step p{font-size:14px;color:rgba(255,255,255,0.8);text-align:left;}
+.proc-step p span{color:#fff;font-weight:600;}
+.proc-spinner{
+  width:48px;height:48px;border:3px solid rgba(255,255,255,0.15);
+  border-top-color:var(--mint);border-radius:50%;
+  animation:spin 0.9s linear infinite;margin:0 auto 24px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ─── RESULTS ─── */
+.results-hero{
+  background:linear-gradient(135deg,var(--navy),var(--indigo));
+  padding:32px 24px 24px;
+}
+.results-label{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.results-name{font-family:'Fraunces',serif;font-size:24px;color:#fff;margin-bottom:8px;}
+.results-count{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,201,167,0.2);border-radius:999px;padding:8px 14px;
+  font-size:13px;color:var(--mint);font-weight:700;
+}
+
+.results-body{padding:24px;}
+.career-card{
+  border-radius:20px;padding:0;overflow:hidden;
+  box-shadow:var(--shadow);margin-bottom:16px;
+  border:1px solid #E8E6FF;
+}
+.career-card-header{
+  padding:20px;display:flex;align-items:flex-start;gap:14px;
+}
+.career-num{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.career-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.career-reason-tag{
+  display:inline-block;padding:4px 10px;border-radius:999px;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;
+}
+.career-card-body{padding:0 20px 20px;}
+.career-reason{font-size:14px;color:var(--gray3);line-height:1.7;margin-bottom:16px;}
+.trait-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.trait-chip{
+  padding:6px 12px;border-radius:999px;
+  font-size:12px;font-weight:600;background:var(--gray1);color:var(--violet);
+}
+.career-explore-btn{
+  width:100%;padding:14px;border-radius:var(--radius-sm);
+  border:none;background:var(--gray2);color:var(--violet);
+  font-size:14px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;
+}
+.career-explore-btn:hover{background:var(--violet);color:#fff;}
+
+/* ─── DETAIL SCREENS ─── */
+.detail-hero{
+  padding:24px 24px 20px;
+  background:linear-gradient(135deg,var(--indigo),var(--violet));
+}
+.detail-hero h2{font-family:'Fraunces',serif;font-size:24px;color:#fff;margin-bottom:6px;}
+.detail-hero p{font-size:14px;color:rgba(255,255,255,0.65);line-height:1.6;}
+.detail-body{padding:20px 24px 32px;}
+
+.course-card{
+  border-radius:var(--radius);padding:18px;
+  border:1.5px solid #E8E6FF;background:var(--white);
+  margin-bottom:12px;cursor:pointer;transition:all 0.2s;
+}
+.course-card:hover{box-shadow:var(--shadow);border-color:var(--lilac);}
+.course-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.course-meta{font-size:13px;color:var(--gray3);}
+.course-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.ctag{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;}
+
+.uni-card{
+  border-radius:var(--radius);padding:18px;
+  border:1.5px solid #E8E6FF;background:var(--white);
+  margin-bottom:12px;
+}
+.uni-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.uni-logo{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--indigo),var(--violet));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.uni-name{font-size:15px;font-weight:700;color:var(--navy);}
+.uni-type{font-size:12px;color:var(--gray3);}
+.uni-detail-row{display:flex;gap:8px;flex-wrap:wrap;}
+.uni-tag{padding:5px 10px;border-radius:8px;background:var(--gray1);font-size:12px;font-weight:600;color:var(--gray3);}
+
+.job-card{
+  border-radius:var(--radius);padding:18px;
+  background:linear-gradient(135deg,var(--gray1),#F0EFFA);
+  border:1.5px solid #E8E6FF;margin-bottom:12px;
+  cursor:pointer;transition:all 0.2s;
+}
+.job-icon{font-size:32px;margin-bottom:10px;}
+.job-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.job-desc{font-size:13px;color:var(--gray3);line-height:1.5;}
+.job-salary{font-size:13px;font-weight:700;color:var(--mint);margin-top:8px;}
+
+.pro-card{
+  border-radius:var(--radius);padding:18px;
+  border:1.5px solid #E8E6FF;background:var(--white);
+  margin-bottom:12px;
+}
+.pro-header{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.pro-avatar{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--mint),var(--violet));
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.pro-name{font-size:15px;font-weight:700;color:var(--navy);}
+.pro-role{font-size:13px;color:var(--gray3);}
+.pro-company{font-size:12px;color:var(--violet);font-weight:600;}
+.pro-bio{font-size:13px;color:var(--gray3);line-height:1.6;margin-bottom:12px;}
+.pro-linkedin-btn{
+  width:100%;padding:12px;border-radius:var(--radius-sm);
+  border:1.5px solid #0077B5;background:rgba(0,119,181,0.08);
+  color:#0077B5;font-size:13px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+
+.industry-card{
+  border-radius:var(--radius);overflow:hidden;
+  margin-bottom:12px;cursor:pointer;
+}
+.industry-top{
+  padding:18px;display:flex;align-items:center;gap:14px;
+}
+.industry-icon{font-size:32px;}
+.industry-name{font-size:15px;font-weight:700;color:var(--navy);}
+.industry-size{font-size:13px;color:var(--gray3);}
+.company-row{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px;}
+.company-chip{
+  padding:6px 12px;border-radius:8px;background:var(--gray1);
+  font-size:12px;font-weight:700;color:var(--navy);
+}
+
+/* ─── BOTTOM NAV ─── */
+.bottom-nav{
+  position:sticky;bottom:0;background:var(--white);
+  border-top:1px solid #F0EFFA;padding:8px 0 4px;
+  display:flex;z-index:20;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;padding:6px 0;color:var(--gray3);font-size:10px;font-weight:600;
+  transition:color 0.2s;
+}
+.nav-item.active{color:var(--violet);}
+.nav-icon{font-size:22px;}
+
+/* ─── SAVED / PROFILE ─── */
+.saved-card{
+  border-radius:var(--radius);padding:18px;
+  border:1.5px solid #E8E6FF;background:var(--white);
+  margin-bottom:12px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:all 0.2s;
+}
+.saved-card:hover{box-shadow:var(--shadow);}
+.saved-icon{
+  width:48px;height:48px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.saved-info{flex:1;}
+.saved-title{font-size:15px;font-weight:700;color:var(--navy);}
+.saved-date{font-size:12px;color:var(--gray3);margin-top:2px;}
+.saved-arrow{font-size:18px;color:var(--gray3);}
+
+.profile-avatar{
+  width:80px;height:80px;border-radius:28px;
+  background:linear-gradient(135deg,var(--violet),var(--mint));
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;margin:0 auto 12px;
+}
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:20px 0;}
+.stat-box{
+  border-radius:var(--radius-sm);padding:14px;
+  background:var(--gray1);text-align:center;
+}
+.stat-num{font-size:22px;font-weight:800;color:var(--violet);}
+.stat-lbl{font-size:11px;color:var(--gray3);margin-top:2px;font-weight:600;}
+
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:#fff;padding:12px 20px;border-radius:999px;
+  font-size:13px;font-weight:600;z-index:999;
+  opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ─── ERROR BOX ─── */
+.error-box{
+  background:#FFF0F0;border-radius:var(--radius);padding:16px;
+  border:1px solid #FFD0D0;margin-bottom:16px;
+  font-size:14px;color:#C0392B;line-height:1.6;
+}
+
+/* LOADING SKELETON */
+.skeleton{
+  background:linear-gradient(90deg,#F0EFFA 25%,#E8E6FF 50%,#F0EFFA 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;
+  border-radius:8px;
+}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+.section-label{
+  font-size:12px;font-weight:700;color:var(--gray3);
+  text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;margin-top:20px;
+}
+.info-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--gray1);border-radius:8px;padding:8px 12px;
+  font-size:13px;color:var(--gray3);margin-bottom:8px;
+}
+</style>
+</head>
+<body>
+
+<div id="frame">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <span>●●●</span>
+      <span>WiFi</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SPLASH ═══════════════ -->
+  <div class="screen active" id="s-splash">
+    <div class="splash-orb">🧠</div>
+    <h1 class="splash-title">Smart Career Predictor</h1>
+    <p class="splash-sub">AI-powered career guidance designed for Nigerian secondary school students — from JSS to SSS and beyond.</p>
+    <div class="splash-dots">
+      <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <button class="btn-primary" onclick="go('s-onboard')">Get Started →</button>
+    <button class="btn-ghost" onclick="go('s-login')">I already have an account</button>
+  </div>
+
+  <!-- ═══════════════ ONBOARD ═══════════════ -->
+  <div class="screen" id="s-onboard">
+    <div class="onboard-visual">
+      <div class="onboard-card">
+        <span class="onboard-emoji">🎯</span>
+        <h2 class="onboard-title">Discover Your Perfect Career Path</h2>
+        <p class="onboard-desc">Our AI analyses your academic history, aptitude, personality, and interests to recommend the best career paths for you — with Nigerian context.</p>
+      </div>
+    </div>
+    <div class="onboard-bottom">
+      <div class="splash-dots" style="margin-bottom:24px;">
+        <div class="dot"></div><div class="dot active"></div><div class="dot"></div>
+      </div>
+      <button class="btn-primary" onclick="go('s-signup')">Create Free Account</button>
+      <button class="btn-ghost" onclick="go('s-login')">Sign In</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SIGN UP ═══════════════ -->
+  <div class="screen" id="s-signup">
+    <div class="auth-wrapper">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">🧠</div>
+        <h2>Create Account</h2>
+        <p>Start your career discovery journey</p>
+      </div>
+      <label class="field-label">Full Name</label>
+      <input class="field-input" id="inp-name" placeholder="Enter your full name"/>
+      <label class="field-label">Email Address</label>
+      <input class="field-input" placeholder="your@email.com" type="email"/>
+      <label class="field-label">Password</label>
+      <input class="field-input" placeholder="Create a password" type="password"/>
+      <label class="field-label">School Name</label>
+      <input class="field-input" placeholder="e.g. Federal Government College, Lagos"/>
+      <button class="btn-violet" onclick="go('s-profile-basic')">Create Account →</button>
+      <div class="auth-switch">Already have an account? <a onclick="go('s-login')">Sign In</a></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ LOGIN ═══════════════ -->
+  <div class="screen" id="s-login">
+    <div class="auth-wrapper">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">🧠</div>
+        <h2>Welcome Back</h2>
+        <p>Continue your career journey</p>
+      </div>
+      <label class="field-label">Email Address</label>
+      <input class="field-input" placeholder="your@email.com" type="email"/>
+      <label class="field-label">Password</label>
+      <input class="field-input" placeholder="Your password" type="password"/>
+      <button class="btn-violet" onclick="go('s-hub')">Sign In →</button>
+      <div class="divider"><span></span><p>or</p><span></span></div>
+      <div class="auth-switch">Don't have an account? <a onclick="go('s-signup')">Sign Up</a></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PROFILE: BASIC ═══════════════ -->
+  <div class="screen" id="s-profile-basic">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('s-signup')">←</div>
+      <span class="top-title">Profile Setup</span>
+      <span class="progress-pill">1 of 4</span>
+    </div>
+    <div class="profile-wrap">
+      <div class="section-head">
+        <h3>Basic Information</h3>
+        <p>Help us understand who you are so we can personalise your career predictions.</p>
+      </div>
+      <label class="field-label">Age</label>
+      <select class="field-select">
+        <option>Select your age</option>
+        <option>10</option><option>11</option><option>12</option><option>13</option>
+        <option>14</option><option>15</option><option>16</option><option>17</option>
+        <option>18</option><option>19</option><option>20+</option>
+      </select>
+      <label class="field-label">Gender</label>
+      <select class="field-select">
+        <option>Select gender</option>
+        <option>Male</option><option>Female</option><option>Prefer not to say</option>
+      </select>
+      <label class="field-label">State of Origin</label>
+      <select class="field-select">
+        <option>Select state</option>
+        <option>Abia</option><option>Adamawa</option><option>Anambra</option>
+        <option>Bauchi</option><option>Borno</option><option>Cross River</option>
+        <option>Delta</option><option>Edo</option><option>Ekiti</option>
+        <option>Enugu</option><option>FCT</option><option>Imo</option>
+        <option>Kaduna</option><option>Kano</option><option>Kogi</option>
+        <option>Kwara</option><option>Lagos</option><option>Ogun</option>
+        <option>Ondo</option><option>Osun</option><option>Oyo</option>
+        <option>Plateau</option><option>Rivers</option><option>Sokoto</option>
+      </select>
+      <label class="field-label">Current Class Level</label>
+      <div class="class-grid">
+        <div class="class-chip" onclick="selectClass(this)"><div class="level">JSS</div><div class="name">JSS 1</div></div>
+        <div class="class-chip" onclick="selectClass(this)"><div class="level">JSS</div><div class="name">JSS 2</div></div>
+        <div class="class-chip" onclick="selectClass(this)"><div class="level">JSS</div><div class="name">JSS 3</div></div>
+        <div class="class-chip" onclick="selectClass(this)"><div class="level">SSS</div><div class="name">SSS 1</div></div>
+        <div class="class-chip" onclick="selectClass(this)"><div class="level">SSS</div><div class="name">SSS 2</div></div>
+        <div class="class-chip active" onclick="selectClass(this)"><div class="level">SSS</div><div class="name">SSS 3</div></div>
+      </div>
+      <button class="btn-violet" onclick="go('s-profile-academic')" style="margin-top:8px;">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PROFILE: ACADEMIC ═══════════════ -->
+  <div class="screen" id="s-profile-academic">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('s-profile-basic')">←</div>
+      <span class="top-title">Academic Records</span>
+      <span class="progress-pill">2 of 4</span>
+    </div>
+    <div class="profile-wrap">
+      <div class="section-head">
+        <h3>Subject Grades</h3>
+        <p>Add grades from your most recent results. Fill in what you have — from JSS2 to SSS3.</p>
+      </div>
+      <div class="section-label">Core Subjects</div>
+      <div id="subject-list">
+        <div class="subject-row"><span class="subject-name">Mathematics</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">English Language</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">Basic Science</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">Physics</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">Chemistry</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">Biology</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">Geography</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">Economics</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">Government</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">Literature in English</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">Further Mathematics</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+        <div class="subject-row"><span class="subject-name">Agricultural Science</span><select class="grade-select"><option>Grade</option><option>A1</option><option>B2</option><option>B3</option><option>C4</option><option>C5</option><option>C6</option><option>D7</option><option>E8</option><option>F9</option></select></div>
+      </div>
+      <button class="btn-violet" onclick="go('s-profile-upload')" style="margin-top:16px;">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PROFILE: UPLOAD ═══════════════ -->
+  <div class="screen" id="s-profile-upload">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('s-profile-academic')">←</div>
+      <span class="top-title">Upload Results</span>
+      <span class="progress-pill">3 of 4</span>
+    </div>
+    <div class="profile-wrap">
+      <div class="section-head">
+        <h3>Upload Your Results</h3>
+        <p>Optionally upload your school report cards or result sheets — our AI will read them automatically.</p>
+      </div>
+      <div class="upload-zone">
+        <div class="upload-icon">📄</div>
+        <h4>Tap to upload result</h4>
+        <p>PDF, JPG, or PNG accepted<br>Max 10MB per file</p>
+      </div>
+      <div class="upload-zone">
+        <div class="upload-icon">📷</div>
+        <h4>Take a photo</h4>
+        <p>Use your camera to capture your result sheet</p>
+      </div>
+      <div class="info-chip">ℹ️ This step is optional — you can skip and continue</div>
+      <button class="btn-violet" onclick="go('s-profile-interests')" style="margin-top:8px;">Continue →</button>
+      <button class="btn-outline" onclick="go('s-profile-interests')" style="width:100%;padding:15px;margin-top:10px;">Skip for now</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PROFILE: INTERESTS ═══════════════ -->
+  <div class="screen" id="s-profile-interests">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('s-profile-upload')">←</div>
+      <span class="top-title">Interests & Goals</span>
+      <span class="progress-pill">4 of 4</span>
+    </div>
+    <div class="profile-wrap">
+      <div class="section-head">
+        <h3>What interests you?</h3>
+        <p>Select all areas that excite or appeal to you. This is optional but improves your prediction.</p>
+      </div>
+      <div class="interest-grid">
+        <div class="interest-chip active" onclick="this.classList.toggle('active')"><span class="ic-icon">💻</span><span class="ic-label">Technology</span></div>
+        <div class="interest-chip" onclick="this.classList.toggle('active')"><span class="ic-icon">🔬</span><span class="ic-label">Science</span></div>
+        <div class="interest-chip" onclick="this.classList.toggle('active')"><span class="ic-icon">🏥</span><span class="ic-label">Medicine</span></div>
+        <div class="interest-chip" onclick="this.classList.toggle('active')"><span class="ic-icon">📊</span><span class="ic-label">Business</span></div>
+        <div class="interest-chip" onclick="this.classList.toggle('active')"><span class="ic-icon">⚖️</span><span class="ic-label">Law</span></div>
+        <div class="interest-chip active" onclick="this.classList.toggle('active')"><span class="ic-icon">🎨</span><span class="ic-label">Arts & Design</span></div>
+        <div class="interest-chip" onclick="this.classList.toggle('active')"><span class="ic-icon">🌍</span><span class="ic-label">Social Work</span></div>
+        <div class="interest-chip" onclick="this.classList.toggle('active')"><span class="ic-icon">✈️</span><span class="ic-label">Aviation</span></div>
+        <div class="interest-chip active" onclick="this.classList.toggle('active')"><span class="ic-icon">🏗️</span><span class="ic-label">Engineering</span></div>
+        <div class="interest-chip" onclick="this.classList.toggle('active')"><span class="ic-icon">📚</span><span class="ic-label">Education</span></div>
+        <div class="interest-chip" onclick="this.classList.toggle('active')"><span class="ic-icon">💰</span><span class="ic-label">Finance</span></div>
+        <div class="interest-chip" onclick="this.classList.toggle('active')"><span class="ic-icon">🎭</span><span class="ic-label">Media & Film</span></div>
+      </div>
+      <label class="field-label" style="margin-top:4px;">Dream career (optional)</label>
+      <input class="field-input" placeholder="e.g. Software engineer, Doctor, Lawyer..."/>
+      <button class="btn-violet" onclick="go('s-hub')">Finish Setup →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ ASSESSMENT HUB ═══════════════ -->
+  <div class="screen" id="s-hub">
+    <div class="hub-header">
+      <div class="hub-greeting">Good morning,</div>
+      <div class="hub-name" id="hub-student-name">Chidera 👋</div>
+      <div class="hub-sub">Complete all 4 assessments to get your AI career prediction.</div>
+      <div class="hub-progress-card">
+        <div class="hub-progress-label">Overall Progress</div>
+        <div class="hub-progress-bar"><div class="hub-progress-fill" style="width:0%" id="hub-prog-fill"></div></div>
+        <div class="hub-progress-text" id="hub-prog-text">0 of 4 assessments complete</div>
+      </div>
+    </div>
+    <div class="hub-body">
+      <div class="hub-tests">
+        <div class="test-card" onclick="go('s-aptitude')">
+          <div class="test-icon-wrap" style="background:linear-gradient(135deg,#E8F5FF,#C4DFFF);">🧮</div>
+          <div class="test-info">
+            <div class="test-title">Aptitude Test</div>
+            <div class="test-desc">Numerical, verbal & abstract reasoning • 15 questions</div>
+          </div>
+          <div class="test-badge badge-pending" id="badge-apt">Pending</div>
+        </div>
+        <div class="test-card" onclick="go('s-cognitive')">
+          <div class="test-icon-wrap" style="background:linear-gradient(135deg,#FFF0E8,#FFDCC4);">🧩</div>
+          <div class="test-info">
+            <div class="test-title">Cognitive Test</div>
+            <div class="test-desc">Problem-solving, memory & logical thinking • 12 questions</div>
+          </div>
+          <div class="test-badge badge-pending" id="badge-cog">Pending</div>
+        </div>
+        <div class="test-card" onclick="go('s-personality')">
+          <div class="test-icon-wrap" style="background:linear-gradient(135deg,#F0E8FF,#DCC4FF);">🧬</div>
+          <div class="test-info">
+            <div class="test-title">Personality Test</div>
+            <div class="test-desc">Traits, working style & communication • 20 questions</div>
+          </div>
+          <div class="test-badge badge-pending" id="badge-per">Pending</div>
+        </div>
+        <div class="test-card" onclick="go('s-interest')">
+          <div class="test-icon-wrap" style="background:linear-gradient(135deg,#E8FFF5,#C4FFE4);">❤️</div>
+          <div class="test-info">
+            <div class="test-title">Interest Test</div>
+            <div class="test-desc">Career preferences, values & life goals • 15 questions</div>
+          </div>
+          <div class="test-badge badge-pending" id="badge-int">Pending</div>
+        </div>
+      </div>
+      <button class="btn-violet" onclick="startProcessing()" style="margin-top:24px;">
+        Get My Career Prediction ✨
+      </button>
+      <p style="text-align:center;font-size:12px;color:var(--gray3);margin-top:12px;">You can proceed even without completing all tests</p>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="go('s-hub')"><span class="nav-icon">🏠</span><span>Home</span></div>
+      <div class="nav-item" onclick="go('s-saved')"><span class="nav-icon">🔖</span><span>Saved</span></div>
+      <div class="nav-item" onclick="go('s-my-profile')"><span class="nav-icon">👤</span><span>Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ APTITUDE TEST ═══════════════ -->
+  <div class="screen" id="s-aptitude">
+    <div class="test-header">
+      <div class="top-bar" style="padding:0;position:static;">
+        <div class="back-btn" onclick="go('s-hub')">←</div>
+        <span class="top-title">Aptitude Test</span>
+        <span class="progress-pill">🧮</span>
+      </div>
+      <div class="test-meta">
+        <span class="test-type-label">Numerical Reasoning</span>
+        <span class="q-counter" id="apt-counter">1 / 5</span>
+      </div>
+      <div class="progress-track"><div class="progress-track-fill" id="apt-prog" style="width:20%"></div></div>
+    </div>
+    <div class="q-body" id="apt-body">
+      <!-- Questions rendered by JS -->
+    </div>
+    <div class="q-nav">
+      <button class="btn-outline" onclick="prevQ('apt')">← Back</button>
+      <button class="btn-next" onclick="nextQ('apt')">Next →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ COGNITIVE TEST ═══════════════ -->
+  <div class="screen" id="s-cognitive">
+    <div class="test-header">
+      <div class="top-bar" style="padding:0;position:static;">
+        <div class="back-btn" onclick="go('s-hub')">←</div>
+        <span class="top-title">Cognitive Test</span>
+        <span class="progress-pill">🧩</span>
+      </div>
+      <div class="test-meta">
+        <span class="test-type-label">Problem Solving</span>
+        <span class="q-counter" id="cog-counter">1 / 5</span>
+      </div>
+      <div class="progress-track"><div class="progress-track-fill" id="cog-prog" style="width:20%"></div></div>
+    </div>
+    <div class="q-body" id="cog-body"></div>
+    <div class="q-nav">
+      <button class="btn-outline" onclick="prevQ('cog')">← Back</button>
+      <button class="btn-next" onclick="nextQ('cog')">Next →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PERSONALITY TEST ═══════════════ -->
+  <div class="screen" id="s-personality">
+    <div class="test-header">
+      <div class="top-bar" style="padding:0;position:static;">
+        <div class="back-btn" onclick="go('s-hub')">←</div>
+        <span class="top-title">Personality Test</span>
+        <span class="progress-pill">🧬</span>
+      </div>
+      <div class="test-meta">
+        <span class="test-type-label">Personality & Traits</span>
+        <span class="q-counter" id="per-counter">1 / 5</span>
+      </div>
+      <div class="progress-track"><div class="progress-track-fill" id="per-prog" style="width:20%"></div></div>
+    </div>
+    <div class="q-body" id="per-body"></div>
+    <div class="q-nav">
+      <button class="btn-outline" onclick="prevQ('per')">← Back</button>
+      <button class="btn-next" onclick="nextQ('per')">Next →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ INTEREST TEST ═══════════════ -->
+  <div class="screen" id="s-interest">
+    <div class="test-header">
+      <div class="top-bar" style="padding:0;position:static;">
+        <div class="back-btn" onclick="go('s-hub')">←</div>
+        <span class="top-title">Interest Test</span>
+        <span class="progress-pill">❤️</span>
+      </div>
+      <div class="test-meta">
+        <span class="test-type-label">Career Interests</span>
+        <span class="q-counter" id="int-counter">1 / 5</span>
+      </div>
+      <div class="progress-track"><div class="progress-track-fill" id="int-prog" style="width:20%"></div></div>
+    </div>
+    <div class="q-body" id="int-body"></div>
+    <div class="q-nav">
+      <button class="btn-outline" onclick="prevQ('int')">← Back</button>
+      <button class="btn-next" onclick="nextQ('int')">Next →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PROCESSING ═══════════════ -->
+  <div class="screen" id="s-processing">
+    <div class="proc-spinner" id="proc-spinner"></div>
+    <h2 class="proc-title">Analysing Your Profile</h2>
+    <p class="proc-sub">Our AI is processing your academic records, assessment results, and interests to find your ideal career paths.</p>
+    <div class="proc-steps">
+      <div class="proc-step"><span class="proc-step-icon">📊</span><p><span>Academic analysis</span> — reading your grades and subject strengths</p></div>
+      <div class="proc-step"><span class="proc-step-icon">🧠</span><p><span>Assessment processing</span> — aptitude, cognitive, personality & interest scores</p></div>
+      <div class="proc-step"><span class="proc-step-icon">🤖</span><p><span>AI matching</span> — finding Nigerian career paths that fit your profile</p></div>
+      <div class="proc-step"><span class="proc-step-icon">🎓</span><p><span>University mapping</span> — identifying Nigerian institutions for your paths</p></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ RESULTS ═══════════════ -->
+  <div class="screen" id="s-results">
+    <div class="results-hero">
+      <div class="results-label">Your Career Predictions</div>
+      <div class="results-name" id="res-student-name">Chidera's Results 🎉</div>
+      <div class="results-count" id="res-count">🎯 Discovering your paths...</div>
+    </div>
+    <div class="results-body" id="results-body">
+      <!-- AI Results rendered here -->
+      <div style="text-align:center;padding:40px 0;">
+        <div class="proc-spinner" style="margin:0 auto 16px;"></div>
+        <p style="color:var(--gray3);">Loading your career predictions...</p>
+      </div>
+    </div>
+    <div style="padding:0 24px 100px;">
+      <button class="btn-outline" style="width:100%;padding:15px;" onclick="go('s-hub')">← Retake Assessments</button>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="go('s-hub')"><span class="nav-icon">🏠</span><span>Home</span></div>
+      <div class="nav-item" onclick="go('s-saved')"><span class="nav-icon">🔖</span><span>Saved</span></div>
+      <div class="nav-item" onclick="go('s-my-profile')"><span class="nav-icon">👤</span><span>Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CAREER DETAIL ═══════════════ -->
+  <div class="screen" id="s-career-detail">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('s-results')">←</div>
+      <span class="top-title" id="cd-title">Career Detail</span>
+      <span></span>
+    </div>
+    <div class="detail-hero">
+      <h2 id="cd-name">Career Name</h2>
+      <p id="cd-tagline">Career tagline here</p>
+    </div>
+    <div class="detail-body">
+      <div class="section-label">Why This Fits You</div>
+      <p id="cd-reason" style="font-size:14px;color:var(--gray3);line-height:1.7;margin-bottom:20px;"></p>
+      <div class="section-label">Your Matching Strengths</div>
+      <div class="trait-row" id="cd-traits"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;">
+        <button class="btn-violet" onclick="go('s-courses')" style="font-size:13px;padding:13px;">📚 Courses to Study</button>
+        <button class="btn-violet" onclick="go('s-universities')" style="font-size:13px;padding:13px;">🎓 Universities</button>
+        <button class="btn-violet" onclick="go('s-jobs')" style="font-size:13px;padding:13px;">💼 Job Roles</button>
+        <button class="btn-violet" onclick="go('s-professionals')" style="font-size:13px;padding:13px;">👤 Professionals</button>
+      </div>
+      <button class="btn-outline" onclick="go('s-industries')" style="width:100%;padding:14px;margin-top:4px;">🏢 Industries & Companies →</button>
+    </div>
+    <div style="height:32px;"></div>
+  </div>
+
+  <!-- ═══════════════ COURSES ═══════════════ -->
+  <div class="screen" id="s-courses">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('s-career-detail')">←</div>
+      <span class="top-title">Related Courses</span>
+    </div>
+    <div class="detail-hero">
+      <h2>Study Pathways</h2>
+      <p>Courses available in Nigerian universities that lead to this career</p>
+    </div>
+    <div class="detail-body" id="courses-body">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+  <!-- ═══════════════ UNIVERSITIES ═══════════════ -->
+  <div class="screen" id="s-universities">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('s-career-detail')">←</div>
+      <span class="top-title">Nigerian Universities</span>
+    </div>
+    <div class="detail-hero">
+      <h2>Where to Study</h2>
+      <p>Top Nigerian universities that offer programs for this career path</p>
+    </div>
+    <div class="detail-body" id="unis-body">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+  <!-- ═══════════════ JOB FIELDS ═══════════════ -->
+  <div class="screen" id="s-jobs">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('s-career-detail')">←</div>
+      <span class="top-title">Job Roles & Fields</span>
+    </div>
+    <div class="detail-hero">
+      <h2>Career Opportunities</h2>
+      <p>Job roles and fields best suited to your personality and this career path</p>
+    </div>
+    <div class="detail-body" id="jobs-body"></div>
+  </div>
+
+  <!-- ═══════════════ PROFESSIONALS ═══════════════ -->
+  <div class="screen" id="s-professionals">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('s-career-detail')">←</div>
+      <span class="top-title">Career Inspiration</span>
+    </div>
+    <div class="detail-hero">
+      <h2>Nigerians in This Field</h2>
+      <p>Real professionals on LinkedIn who are succeeding in this career path</p>
+    </div>
+    <div class="detail-body" id="pros-body"></div>
+  </div>
+
+  <!-- ═══════════════ INDUSTRIES ═══════════════ -->
+  <div class="screen" id="s-industries">
+    <div class="top-bar">
+      <div class="back-btn" onclick="go('s-career-detail')">←</div>
+      <span class="top-title">Industries & Companies</span>
+    </div>
+    <div class="detail-hero">
+      <h2>Where You'll Work</h2>
+      <p>Nigerian industries and companies hiring for this career path</p>
+    </div>
+    <div class="detail-body" id="industries-body"></div>
+  </div>
+
+  <!-- ═══════════════ SAVED ═══════════════ -->
+  <div class="screen" id="s-saved">
+    <div class="top-bar">
+      <span class="top-title" style="flex:1;">Saved Careers</span>
+    </div>
+    <div style="padding:0 24px;">
+      <p style="font-size:14px;color:var(--gray3);margin-bottom:20px;">Your bookmarked career paths and past predictions.</p>
+      <div class="saved-card" onclick="go('s-career-detail')">
+        <div class="saved-icon" style="background:linear-gradient(135deg,#E8F5FF,#C4DFFF);">💻</div>
+        <div class="saved-info"><div class="saved-title">Software Engineer</div><div class="saved-date">Saved · SSS 3 · May 2025</div></div>
+        <div class="saved-arrow">›</div>
+      </div>
+      <div class="saved-card" onclick="go('s-career-detail')">
+        <div class="saved-icon" style="background:linear-gradient(135deg,#E8FFF5,#C4FFE4);">📊</div>
+        <div class="saved-info"><div class="saved-title">Data Scientist</div><div class="saved-date">Saved · SSS 3 · May 2025</div></div>
+        <div class="saved-arrow">›</div>
+      </div>
+      <div class="section-label" style="margin-top:24px;">Assessment History</div>
+      <div class="saved-card">
+        <div class="saved-icon" style="background:linear-gradient(135deg,#FFF0E8,#FFDCC4);">📋</div>
+        <div class="saved-info"><div class="saved-title">SSS 3 Assessment</div><div class="saved-date">Completed · May 2025 · All 4 tests</div></div>
+        <div class="saved-arrow">›</div>
+      </div>
+      <button class="btn-outline" onclick="go('s-hub')" style="width:100%;padding:14px;margin-top:16px;">Retake Assessment →</button>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="go('s-hub')"><span class="nav-icon">🏠</span><span>Home</span></div>
+      <div class="nav-item active" onclick="go('s-saved')"><span class="nav-icon">🔖</span><span>Saved</span></div>
+      <div class="nav-item" onclick="go('s-my-profile')"><span class="nav-icon">👤</span><span>Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MY PROFILE ═══════════════ -->
+  <div class="screen" id="s-my-profile">
+    <div style="padding:24px;">
+      <div class="profile-avatar">🧑‍🎓</div>
+      <h2 style="text-align:center;font-size:20px;font-weight:700;color:var(--navy);" id="profile-name">Chidera Okonkwo</h2>
+      <p style="text-align:center;font-size:14px;color:var(--gray3);margin-top:4px;">SSS 3 · Federal Government College, Lagos</p>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-num">4</div><div class="stat-lbl">Tests Done</div></div>
+        <div class="stat-box"><div class="stat-num">2</div><div class="stat-lbl">Careers Saved</div></div>
+        <div class="stat-box"><div class="stat-num">1</div><div class="stat-lbl">Predictions</div></div>
+      </div>
+      <div class="section-label">Account</div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div class="saved-card" style="cursor:default;"><span>✏️</span><div class="saved-info"><div class="saved-title">Edit Profile</div></div><div class="saved-arrow">›</div></div>
+        <div class="saved-card" style="cursor:default;"><span>🔒</span><div class="saved-info"><div class="saved-title">Change Password</div></div><div class="saved-arrow">›</div></div>
+        <div class="saved-card" style="cursor:default;"><span>🔔</span><div class="saved-info"><div class="saved-title">Notifications</div></div><div class="saved-arrow">›</div></div>
+        <div class="saved-card" style="cursor:default;" onclick="go('s-splash')"><span>🚪</span><div class="saved-info"><div class="saved-title" style="color:#C0392B;">Sign Out</div></div><div class="saved-arrow">›</div></div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="go('s-hub')"><span class="nav-icon">🏠</span><span>Home</span></div>
+      <div class="nav-item" onclick="go('s-saved')"><span class="nav-icon">🔖</span><span>Saved</span></div>
+      <div class="nav-item active" onclick="go('s-my-profile')"><span class="nav-icon">👤</span><span>Profile</span></div>
+    </div>
+  </div>
+
+</div><!-- end frame -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───
+const appState = {
+  studentName: 'Chidera',
+  testsCompleted: { apt: false, cog: false, per: false, int: false },
+  answers: { apt: {}, cog: {}, per: {}, int: {} },
+  currentQ: { apt: 0, cog: 0, per: 0, int: 0 },
+  aiResults: null
+};
+
+// ─── QUESTIONS ───
+const questions = {
+  apt: [
+    { q: "If a trader buys goods for ₦15,000 and sells at ₦18,750, what is the profit percentage?", opts: ["15%","20%","25%","30%"], ans: 2 },
+    { q: "A train travels 120km in 1.5 hours. What is its average speed in km/h?", opts: ["60","80","90","100"], ans: 1 },
+    { q: "Which number continues the sequence: 3, 6, 12, 24, ___?", opts: ["36","42","48","56"], ans: 2 },
+    { q: "If 5 workers complete a job in 8 days, how many days will 4 workers take?", opts: ["8","9","10","12"], ans: 2 },
+    { q: "What is the next shape in the pattern: ▲ ■ ▲ ■ ▲ ___?", opts: ["▲","■","●","◆"], ans: 1 },
+  ],
+  cog: [
+    { q: "A student reads a book in 6 days, reading 25 pages per day. If the book has 180 pages, how many days does she actually need?", opts: ["6 days","7 days","7.2 days","8 days"], ans: 2 },
+    { q: "All WAEC candidates must be students. Emeka is a student. Therefore:", opts: ["Emeka must take WAEC","Emeka may or may not take WAEC","Emeka is not a WAEC candidate","Cannot be determined"], ans: 1 },
+    { q: "Which word is the ODD one out? Engineer, Doctor, Hospital, Lawyer", opts: ["Engineer","Doctor","Hospital","Lawyer"], ans: 2 },
+    { q: "If RED = 27 and BLUE = 40, what does GREEN equal?", opts: ["45","50","52","55"], ans: 2 },
+    { q: "A clock shows 3:15. What is the angle between the hour and minute hands?", opts: ["0°","7.5°","15°","22.5°"], ans: 1 },
+  ],
+  per: [
+    { q: "When given a group project, I prefer to:", opts: ["Lead and coordinate the team","Work independently on my part","Support wherever needed","Plan and organise the timeline"], type: 'scale' },
+    { q: "I feel most energised when I am:", opts: ["Meeting and helping people","Solving complex puzzles alone","Building or creating something","Analysing data and patterns"], type: 'scale' },
+    { q: "When I face a difficult problem, I usually:", opts: ["Talk it through with others","Research thoroughly before acting","Try different solutions quickly","Break it down step by step"], type: 'scale' },
+    { q: "My friends would describe me as:", opts: ["Creative and imaginative","Logical and precise","Caring and empathetic","Organised and reliable"], type: 'scale' },
+    { q: "In 10 years, I want to be:", opts: ["Running my own business","An expert in my technical field","Making a difference in my community","Leading a large team or organisation"], type: 'scale' },
+  ],
+  int: [
+    { q: "Which of these activities would you enjoy most?", opts: ["Writing code or building apps","Performing surgery or treating patients","Designing logos and brands","Arguing a case in court"], ans: 0 },
+    { q: "What kind of problems excite you most?", opts: ["How technology can solve everyday issues","How to cure diseases","How to communicate ideas visually","How to make businesses more profitable"], ans: 0 },
+    { q: "Which Nigerian industry do you find most exciting?", opts: ["FinTech & Technology (Flutterwave, Paystack)","Healthcare & Pharmaceuticals","Creative arts, film & music (Nollywood)","Oil & energy (NNPC, Shell)"], ans: 0 },
+    { q: "Which school subject did you enjoy most?", opts: ["Mathematics & Further Maths","Biology & Chemistry","Art & Literature","Commerce & Economics"], ans: 0 },
+    { q: "What matters most to you in a career?", opts: ["Building innovative products","Helping and healing people","Creative freedom and expression","Financial wealth and stability"], ans: 0 },
+  ]
+};
+
+// ─── NAVIGATION ───
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  target.classList.add('active');
+  target.scrollTop = 0;
+  if (id === 's-aptitude') renderQ('apt');
+  if (id === 's-cognitive') renderQ('cog');
+  if (id === 's-personality') renderQ('per');
+  if (id === 's-interest') renderQ('int');
+  if (id === 's-hub') updateHub();
+  if (id === 's-courses') renderCourses();
+  if (id === 's-universities') renderUniversities();
+  if (id === 's-jobs') renderJobs();
+  if (id === 's-professionals') renderProfessionals();
+  if (id === 's-industries') renderIndustries();
+}
+
+// ─── TESTS ───
+function renderQ(t) {
+  const qs = questions[t];
+  const idx = appState.currentQ[t];
+  const q = qs[idx];
+  const body = document.getElementById(t === 'apt' ? 'apt-body' : t === 'cog' ? 'cog-body' : t === 'per' ? 'per-body' : 'int-body');
+  const counter = document.getElementById(t + '-counter');
+  const prog = document.getElementById(t + '-prog');
+  counter.textContent = `${idx + 1} / ${qs.length}`;
+  prog.style.width = `${((idx + 1) / qs.length) * 100}%`;
+
+  const letters = ['A', 'B', 'C', 'D'];
+  let html = `<p class="q-text">${q.q}</p><div class="q-options">`;
+  q.opts.forEach((opt, i) => {
+    const selected = appState.answers[t][idx] === i ? 'selected' : '';
+    html += `<button class="q-opt ${selected}" onclick="selectOpt('${t}',${idx},${i},this)">
+      <span class="q-opt-letter">${letters[i]}</span>${opt}
+    </button>`;
+  });
+  html += `</div>`;
+  body.innerHTML = html;
+}
+
+function selectOpt(t, qIdx, optIdx, el) {
+  appState.answers[t][qIdx] = optIdx;
+  const parent = el.parentElement;
+  parent.querySelectorAll('.q-opt').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function nextQ(t) {
+  const qs = questions[t];
+  if (appState.currentQ[t] < qs.length - 1) {
+    appState.currentQ[t]++;
+    renderQ(t);
+  } else {
+    appState.testsCompleted[t] = true;
+    updateHub();
+    showToast('✅ Test completed!');
+    go('s-hub');
+  }
+}
+
+function prevQ(t) {
+  if (appState.currentQ[t] > 0) {
+    appState.currentQ[t]--;
+    renderQ(t);
+  } else {
+    go('s-hub');
+  }
+}
+
+function updateHub() {
+  const done = Object.values(appState.testsCompleted).filter(Boolean).length;
+  const fill = document.getElementById('hub-prog-fill');
+  const text = document.getElementById('hub-prog-text');
+  if (fill) fill.style.width = `${(done / 4) * 100}%`;
+  if (text) text.textContent = `${done} of 4 assessments complete`;
+  const map = { apt: 'badge-apt', cog: 'badge-cog', per: 'badge-per', int: 'badge-int' };
+  Object.entries(appState.testsCompleted).forEach(([k, v]) => {
+    const el = document.getElementById(map[k]);
+    if (el) {
+      el.textContent = v ? '✓ Done' : 'Pending';
+      el.className = 'test-badge ' + (v ? 'badge-done' : 'badge-pending');
+    }
+  });
+  const nameEl = document.getElementById('hub-student-name');
+  if (nameEl) nameEl.textContent = appState.studentName + ' 👋';
+}
+
+// ─── AI PROCESSING ───
+async function startProcessing() {
+  go('s-processing');
+  setTimeout(async () => {
+    await fetchAIResults();
+  }, 500);
+}
+
+async function fetchAIResults() {
+  const done = Object.values(appState.testsCompleted).filter(Boolean).length;
+  const apt = Object.values(appState.answers.apt);
+  const interests = Object.values(appState.answers.int);
+
+  const prompt = `You are an expert Nigerian career counsellor and AI system. Based on the student profile below, recommend 1 to 3 career paths. Return ONLY valid JSON — no markdown, no explanation.
+
+Student Profile:
+- Class Level: SSS 3 (Senior Secondary School)
+- Completed Tests: ${done}/4 assessments
+- Aptitude answers (0-indexed choice from each question): ${JSON.stringify(apt)}
+- Interest answers: ${JSON.stringify(interests)}
+- Top interests selected: Technology, Engineering, Arts & Design
+
+JSON format to return:
+{
+  "studentSummary": "2 sentence profile summary",
+  "careers": [
+    {
+      "title": "Career Title",
+      "emoji": "relevant emoji",
+      "tagline": "Short inspiring tagline",
+      "colorGradient": "CSS gradient e.g. linear-gradient(135deg,#2D3A8C,#5B4FD0)",
+      "reason": "2-3 sentence explanation why this career fits this student based on their data",
+      "traits": ["Analytical","Creative","Problem-solver","Detail-oriented"],
+      "courses": [
+        {"name": "Computer Science", "duration": "4 years", "waec_subjects": "Maths, Physics, Chemistry", "tags": ["STEM","High demand"]},
+        {"name": "Software Engineering", "duration": "4-5 years", "waec_subjects": "Maths, Physics", "tags": ["Tech","Growing"]}
+      ],
+      "universities": [
+        {"name": "University of Lagos (UNILAG)", "type": "Federal", "location": "Lagos", "strength": "Top-ranked engineering faculty"},
+        {"name": "Obafemi Awolowo University (OAU)", "type": "Federal", "location": "Ile-Ife, Osun", "strength": "Strong science programs"},
+        {"name": "Covenant University", "type": "Private", "location": "Ota, Ogun", "strength": "Technology-focused, industry links"}
+      ],
+      "jobRoles": [
+        {"title": "Software Developer", "emoji": "💻", "salary": "₦200,000 – ₦800,000/month", "desc": "Build web and mobile applications for businesses"},
+        {"title": "Data Analyst", "emoji": "📊", "salary": "₦150,000 – ₦600,000/month", "desc": "Analyse data to help companies make better decisions"},
+        {"title": "Product Manager", "emoji": "🚀", "salary": "₦300,000 – ₦1,200,000/month", "desc": "Lead product development from idea to launch"}
+      ],
+      "professionals": [
+        {"name": "Amara Nwosu", "initials": "AN", "role": "Senior Software Engineer", "company": "Flutterwave", "location": "Lagos", "bio": "10 years in Nigerian tech. Started at a small startup, now leading teams at one of Africa's biggest FinTechs.", "linkedin": "Search 'Amara Nwosu Flutterwave' on LinkedIn"},
+        {"name": "Chidi Okeke", "initials": "CO", "role": "Head of Engineering", "company": "Interswitch", "location": "Lagos", "bio": "Computer Science from OAU. Built payment systems serving millions of Nigerians.", "linkedin": "Search 'Chidi Okeke Interswitch' on LinkedIn"}
+      ],
+      "industries": [
+        {"name": "Financial Technology (FinTech)", "emoji": "💳", "size": "Fastest growing sector in Nigeria", "companies": ["Flutterwave","Paystack","Kuda Bank","OPay","PalmPay","Cowrywise"]},
+        {"name": "Telecommunications", "emoji": "📡", "size": "₦2+ trillion industry", "companies": ["MTN Nigeria","Airtel","Glo","9mobile"]},
+        {"name": "E-Commerce & Logistics", "emoji": "📦", "size": "Rapid expansion post-COVID", "companies": ["Jumia","Konga","Max.ng","Sendbox"]}
+      ]
+    }
+  ]
+}
+
+Only include 1-3 careers based on how clearly the data points to a direction. Be specific and realistic for Nigeria. All salary figures in Naira. All universities must be real Nigerian institutions.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content || []).find(b => b.type === 'text')?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    appState.aiResults = parsed;
+    renderResults(parsed);
+    go('s-results');
+  } catch (e) {
+    console.error(e);
+    // Fallback data
+    appState.aiResults = getFallbackData();
+    renderResults(appState.aiResults);
+    go('s-results');
+  }
+}
+
+function getFallbackData() {
+  return {
+    studentSummary: "Based on your assessment results, you show strong analytical and creative abilities. Your interest in technology and engineering, combined with good numerical aptitude, suggests excellent potential in technical and innovative fields.",
+    careers: [
+      {
+        title: "Software Engineer",
+        emoji: "💻",
+        tagline: "Build the technology shaping Nigeria's future",
+        colorGradient: "linear-gradient(135deg,#2D3A8C,#5B4FD0)",
+        reason: "Your aptitude test results show strong numerical and logical reasoning — core skills for software engineering. Your interest in technology and problem-solving aligns perfectly with building software products. Nigeria's booming tech scene means excellent job opportunities at companies like Flutterwave, Paystack, and international remote roles.",
+        traits: ["Analytical","Logical","Detail-oriented","Problem-solver","Creative"],
+        courses: [
+          { name: "Computer Science", duration: "4 years", waec_subjects: "Maths, Physics, Chemistry", tags: ["STEM","High demand","Tech"] },
+          { name: "Software Engineering", duration: "4-5 years", waec_subjects: "Maths, Physics", tags: ["Practical","Industry-focused"] },
+          { name: "Information Technology", duration: "4 years", waec_subjects: "Maths, Physics, Chemistry", tags: ["Flexible","Broad"] }
+        ],
+        universities: [
+          { name: "University of Lagos (UNILAG)", type: "Federal", location: "Lagos State", strength: "Top computer science faculty in Nigeria" },
+          { name: "Obafemi Awolowo University (OAU)", type: "Federal", location: "Ile-Ife, Osun", strength: "Strong engineering and science programs" },
+          { name: "Covenant University", type: "Private", location: "Ota, Ogun State", strength: "Technology-focused with industry partnerships" },
+          { name: "University of Nigeria, Nsukka (UNN)", type: "Federal", location: "Enugu State", strength: "Excellent ICT programs and research" }
+        ],
+        jobRoles: [
+          { title: "Software Developer", emoji: "💻", salary: "₦200,000 – ₦800,000/month", desc: "Design and build web and mobile applications for businesses across Nigeria and globally" },
+          { title: "Data Analyst", emoji: "📊", salary: "₦150,000 – ₦600,000/month", desc: "Analyse data to help Nigerian companies make smarter business decisions" },
+          { title: "Product Manager", emoji: "🚀", salary: "₦300,000 – ₦1,500,000/month", desc: "Lead tech product development from concept to launch in Nigeria's startup ecosystem" },
+          { title: "Cybersecurity Analyst", emoji: "🛡️", salary: "₦250,000 – ₦900,000/month", desc: "Protect Nigerian organisations from digital threats and cyberattacks" }
+        ],
+        professionals: [
+          { name: "Amara Nwosu", initials: "AN", role: "Senior Software Engineer", company: "Flutterwave", location: "Lagos", bio: "A Computer Science graduate from UNILAG. Spent 3 years at small startups before joining Flutterwave where she now leads a backend engineering team serving 35+ African countries.", linkedin: "Search 'Senior Software Engineer Flutterwave Lagos' on LinkedIn" },
+          { name: "Emeka Okafor", initials: "EO", role: "Head of Engineering", company: "Paystack", location: "Lagos", bio: "Started coding at 16, graduated from Covenant University. Now leads 40+ engineers building Nigeria's most trusted payment infrastructure.", linkedin: "Search 'Head of Engineering Paystack' on LinkedIn" }
+        ],
+        industries: [
+          { name: "Financial Technology (FinTech)", emoji: "💳", size: "Nigeria's fastest growing tech sector", companies: ["Flutterwave","Paystack","Kuda Bank","OPay","PalmPay","Cowrywise"] },
+          { name: "Telecommunications", emoji: "📡", size: "₦2+ trillion annual revenue", companies: ["MTN Nigeria","Airtel Nigeria","Glo","9mobile"] },
+          { name: "E-Commerce & Logistics", emoji: "📦", size: "Fastest post-pandemic growth", companies: ["Jumia","Konga","Max.ng","Sendbox","GIG Logistics"] }
+        ]
+      }
+    ]
+  };
+}
+
+// ─── RENDER RESULTS ───
+function renderResults(data) {
+  const body = document.getElementById('results-body');
+  const nameEl = document.getElementById('res-student-name');
+  const countEl = document.getElementById('res-count');
+  const count = data.careers.length;
+  if (nameEl) nameEl.textContent = appState.studentName + "'s Results 🎉";
+  if (countEl) countEl.textContent = `🎯 ${count} career path${count !== 1 ? 's' : ''} found for you`;
+
+  const colors = [
+    ['#2D3A8C','#5B4FD0'],
+    ['#0D6E5A','#00C9A7'],
+    ['#7C3A00','#FFB547']
+  ];
+  const numColors = [['#E8E6FF','#5B4FD0'],['#E0FFF8','#0D6E5A'],['#FFF8E8','#7C3A00']];
+
+  let html = '';
+  if (data.studentSummary) {
+    html += `<div style="background:linear-gradient(135deg,#F0EEFF,#E8F5FF);border-radius:16px;padding:18px;margin-bottom:16px;border:1px solid #C4BFF5;">
+      <div style="font-size:12px;font-weight:700;color:var(--violet);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">✨ Your Profile Summary</div>
+      <p style="font-size:14px;color:var(--navy);line-height:1.7;">${data.studentSummary}</p>
+    </div>`;
+  }
+
+  data.careers.forEach((c, i) => {
+    const [c1, c2] = colors[i % colors.length];
+    const [nb, nt] = numColors[i % numColors.length];
+    html += `<div class="career-card">
+      <div class="career-card-header" style="background:${c.colorGradient || `linear-gradient(135deg,${c1},${c2})`};">
+        <div class="career-num" style="background:rgba(255,255,255,0.2);">${i + 1}</div>
+        <div style="flex:1;">
+          <div class="career-title" style="color:#fff;">${c.emoji || '🎯'} ${c.title}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:2px;">${c.tagline || ''}</div>
+        </div>
+      </div>
+      <div class="career-card-body">
+        <p class="career-reason">${c.reason}</p>
+        <div class="trait-row">${(c.traits || []).map(t => `<span class="trait-chip">${t}</span>`).join('')}</div>
+        <button class="career-explore-btn" onclick="openCareer(${i})">Explore This Path →</button>
+      </div>
+    </div>`;
+  });
+
+  body.innerHTML = html;
+}
+
+function openCareer(idx) {
+  const c = appState.aiResults.careers[idx];
+  document.getElementById('cd-title').textContent = c.title;
+  document.getElementById('cd-name').textContent = `${c.emoji || '🎯'} ${c.title}`;
+  document.getElementById('cd-tagline').textContent = c.tagline || '';
+  document.getElementById('cd-reason').textContent = c.reason;
+  const traitsEl = document.getElementById('cd-traits');
+  traitsEl.innerHTML = (c.traits || []).map(t => `<span class="trait-chip">${t}</span>`).join('');
+  appState.currentCareer = idx;
+  go('s-career-detail');
+}
+
+// ─── DETAIL RENDERERS ───
+function renderCourses() {
+  const c = appState.aiResults?.careers[appState.currentCareer || 0];
+  if (!c) return;
+  const body = document.getElementById('courses-body');
+  let html = '';
+  (c.courses || []).forEach(course => {
+    html += `<div class="course-card">
+      <div class="course-title">📚 ${course.name}</div>
+      <div class="course-meta">Duration: ${course.duration}</div>
+      <div class="course-meta" style="margin-top:4px;">WAEC subjects: ${course.waec_subjects}</div>
+      <div class="course-tags">${(course.tags || []).map(t => `<span class="ctag" style="background:var(--gray2);color:var(--violet);">${t}</span>`).join('')}</div>
+    </div>`;
+  });
+  body.innerHTML = html || '<p style="color:var(--gray3);">Course data loading...</p>';
+}
+
+function renderUniversities() {
+  const c = appState.aiResults?.careers[appState.currentCareer || 0];
+  if (!c) return;
+  const body = document.getElementById('unis-body');
+  const typeColors = { Federal: '#2D3A8C', State: '#0D6E5A', Private: '#7C3A00' };
+  let html = '';
+  (c.universities || []).forEach(uni => {
+    const col = typeColors[uni.type] || '#5B4FD0';
+    html += `<div class="uni-card">
+      <div class="uni-header">
+        <div class="uni-logo" style="background:linear-gradient(135deg,${col}99,${col});">🎓</div>
+        <div><div class="uni-name">${uni.name}</div><div class="uni-type">${uni.location}</div></div>
+      </div>
+      <div class="uni-detail-row">
+        <span class="uni-tag" style="background:${col}18;color:${col};">${uni.type} University</span>
+        <span class="uni-tag">📍 ${uni.location?.split(',')[0] || 'Nigeria'}</span>
+      </div>
+      ${uni.strength ? `<p style="font-size:13px;color:var(--gray3);margin-top:10px;line-height:1.5;">⭐ ${uni.strength}</p>` : ''}
+    </div>`;
+  });
+  body.innerHTML = html || '<p style="color:var(--gray3);">University data loading...</p>';
+}
+
+function renderJobs() {
+  const c = appState.aiResults?.careers[appState.currentCareer || 0];
+  if (!c) return;
+  const body = document.getElementById('jobs-body');
+  let html = '';
+  (c.jobRoles || []).forEach(job => {
+    html += `<div class="job-card">
+      <div class="job-icon">${job.emoji || '💼'}</div>
+      <div class="job-title">${job.title}</div>
+      <div class="job-desc">${job.desc}</div>
+      <div class="job-salary">💰 ${job.salary}</div>
+    </div>`;
+  });
+  body.innerHTML = html || '<p style="color:var(--gray3);">Job data loading...</p>';
+}
+
+function renderProfessionals() {
+  const c = appState.aiResults?.careers[appState.currentCareer || 0];
+  if (!c) return;
+  const body = document.getElementById('pros-body');
+  const avatarColors = [
+    ['#00C9A7','#2D3A8C'],
+    ['#5B4FD0','#FF6584'],
+    ['#FFB547','#0D6E5A']
+  ];
+  let html = '';
+  (c.professionals || []).forEach((pro, i) => {
+    const [c1, c2] = avatarColors[i % avatarColors.length];
+    html += `<div class="pro-card">
+      <div class="pro-header">
+        <div class="pro-avatar" style="background:linear-gradient(135deg,${c1},${c2});">${pro.initials || '👤'}</div>
+        <div>
+          <div class="pro-name">${pro.name}</div>
+          <div class="pro-role">${pro.role}</div>
+          <div class="pro-company">🏢 ${pro.company} · ${pro.location}</div>
+        </div>
+      </div>
+      <p class="pro-bio">${pro.bio}</p>
+      <button class="pro-linkedin-btn" onclick="showToast('🔍 ${pro.linkedin || 'Search on LinkedIn'}')">🔗 Find on LinkedIn</button>
+    </div>`;
+  });
+  body.innerHTML = html || '<p style="color:var(--gray3);">Professional data loading...</p>';
+}
+
+function renderIndustries() {
+  const c = appState.aiResults?.careers[appState.currentCareer || 0];
+  if (!c) return;
+  const body = document.getElementById('industries-body');
+  const bgColors = ['#E8F5FF','#E0FFF8','#FFF0E8','#F0E8FF'];
+  let html = '';
+  (c.industries || []).forEach((ind, i) => {
+    html += `<div class="industry-card" style="border:1.5px solid #E8E6FF;border-radius:16px;background:${bgColors[i % bgColors.length]};">
+      <div class="industry-top">
+        <span class="industry-icon">${ind.emoji || '🏢'}</span>
+        <div>
+          <div class="industry-name">${ind.name}</div>
+          <div class="industry-size">${ind.size}</div>
+        </div>
+      </div>
+      <div class="company-row">${(ind.companies || []).map(comp => `<span class="company-chip">${comp}</span>`).join('')}</div>
+    </div>`;
+  });
+  body.innerHTML = html || '<p style="color:var(--gray3);">Industry data loading...</p>';
+}
+
+// ─── CLASS SELECTOR ───
+function selectClass(el) {
+  document.querySelectorAll('.class-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ─── TOAST ───
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded', () => {
+  renderQ('apt');
+  renderQ('cog');
+  renderQ('per');
+  renderQ('int');
+  const nameInput = document.getElementById('inp-name');
+  if (nameInput) {
+    nameInput.addEventListener('input', () => {
+      const n = nameInput.value.split(' ')[0];
+      if (n) {
+        appState.studentName = n;
+        const hubName = document.getElementById('hub-student-name');
+        if (hubName) hubName.textContent = n + ' 👋';
+        const profileName = document.getElementById('profile-name');
+        if (profileName) profileName.textContent = nameInput.value || 'Student';
+        const resName = document.getElementById('res-student-name');
+        if (resName) resName.textContent = n + "'s Results 🎉";
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>
