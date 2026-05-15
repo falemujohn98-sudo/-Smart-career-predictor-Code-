@@ -3,672 +3,1609 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CareerIQ — AI Career Predictor</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<title>Smart Career Predictor</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#050c14;
-  --surface:#0b1520;
-  --surface2:#111d2b;
-  --surface3:#172133;
-  --border:rgba(0,210,200,.13);
-  --border-md:rgba(0,210,200,.28);
-  --border-hi:rgba(0,210,200,.45);
-  --accent:#00d4c8;
-  --accent-dim:rgba(0,212,200,.12);
-  --accent2:#7c6aff;
-  --accent2-dim:rgba(124,106,255,.12);
-  --text:#dff0f0;
-  --text-muted:#7fa2b4;
-  --text-dim:#3d5870;
-  --success:#1ec997;
-  --warn:#f59e0b;
-  --danger:#e55;
-  --r:14px;
-  --r-sm:10px;
-  --ease:cubic-bezier(.4,0,.2,1);
-}
-html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --primary:#4F46E5;--primary-light:#818CF8;--primary-dark:#3730A3;
+    --secondary:#7C3AED;--accent:#EC4899;--accent2:#F59E0B;
+    --bg:#0F0E17;--bg2:#1A1828;--bg3:#252338;--bg4:#2E2B47;
+    --surface:#1E1C2E;--surface2:#28263C;
+    --text:#F8F7FF;--text2:#B8B5D4;--text3:#7B78A0;
+    --green:#10B981;--green-bg:#0D2D22;
+    --red:#EF4444;--red-bg:#2D1515;
+    --yellow:#F59E0B;--yellow-bg:#2D240D;
+    --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.12);
+    --radius:16px;--radius-sm:10px;--radius-xs:8px;
+    --gradient:linear-gradient(135deg,#4F46E5,#7C3AED,#EC4899);
+    --gradient2:linear-gradient(135deg,#3730A3,#4F46E5);
+    --shadow:0 8px 32px rgba(0,0,0,0.4);
+    --glow:0 0 20px rgba(79,70,229,0.3);
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+  
+  /* Phone frame */
+  .phone{width:390px;height:844px;background:var(--bg);border-radius:48px;overflow:hidden;position:relative;box-shadow:0 0 0 2px rgba(255,255,255,0.08),0 40px 80px rgba(0,0,0,0.6),var(--glow);display:flex;flex-direction:column;}
+  .phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:34px;background:var(--bg);border-radius:0 0 20px 20px;z-index:100;}
+  .phone-screen{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;scrollbar-width:none;}
+  .phone-screen::-webkit-scrollbar{display:none;}
 
-/* ── Background ── */
-.bg{position:fixed;inset:0;z-index:0;pointer-events:none}
-.bg-grad{
-  position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse 70% 55% at 15% 10%,rgba(0,200,195,.07) 0%,transparent 55%),
-    radial-gradient(ellipse 50% 40% at 85% 90%,rgba(124,106,255,.07) 0%,transparent 55%),
-    radial-gradient(ellipse 40% 35% at 80% 15%,rgba(0,200,195,.04) 0%,transparent 50%),
-    var(--bg)
-}
-.bg-grid{
-  position:absolute;inset:0;
-  background-image:linear-gradient(rgba(0,210,200,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,200,.025) 1px,transparent 1px);
-  background-size:52px 52px
-}
-.bg-grid::after{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 60% 60% at 50% 50%,transparent 40%,var(--bg) 100%)
-}
-.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
-.orb1{width:500px;height:500px;background:rgba(0,212,200,.055);top:-160px;right:-120px;animation:floatOrb 9s ease-in-out infinite}
-.orb2{width:380px;height:380px;background:rgba(124,106,255,.055);bottom:-100px;left:-100px;animation:floatOrb 11s ease-in-out infinite reverse}
-@keyframes floatOrb{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-28px) scale(1.04)}}
+  /* Page system */
+  .page{min-height:844px;display:none;flex-direction:column;position:relative;}
+  .page.active{display:flex;}
 
-/* ── App ── */
-#app{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 20px}
-.screen{display:none;width:100%;max-width:580px;animation:slideIn .45s var(--ease)}
-.screen.active{display:block}
-@keyframes slideIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+  /* Navigation dots */
+  .nav-outer{background:rgba(15,14,23,0.9);backdrop-filter:blur(20px);padding:8px 20px 20px;border-top:1px solid var(--border);flex-shrink:0;}
+  .nav-bar{display:flex;justify-content:space-around;align-items:center;}
+  .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 12px;border-radius:var(--radius-xs);transition:all 0.2s;}
+  .nav-item.active .nav-icon{color:var(--primary-light);}
+  .nav-item.active .nav-label{color:var(--primary-light);}
+  .nav-icon{font-size:22px;color:var(--text3);transition:color 0.2s;}
+  .nav-label{font-size:10px;color:var(--text3);font-weight:500;transition:color 0.2s;}
 
-/* ── Card ── */
-.card{background:rgba(11,21,32,.82);border:1px solid var(--border);border-radius:20px;padding:40px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+  /* Buttons */
+  .btn{width:100%;padding:16px;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.01em;}
+  .btn-primary{background:var(--gradient);color:#fff;box-shadow:0 4px 20px rgba(79,70,229,0.4);}
+  .btn-primary:active{transform:scale(0.98);box-shadow:0 2px 10px rgba(79,70,229,0.3);}
+  .btn-outline{background:transparent;color:var(--text);border:1.5px solid var(--border2);}
+  .btn-outline:active{transform:scale(0.98);background:var(--surface);}
+  .btn-sm{padding:10px 20px;font-size:14px;width:auto;}
+  .btn-ghost{background:transparent;color:var(--primary-light);font-size:14px;font-weight:500;border:none;cursor:pointer;padding:8px;}
 
-/* ── Brand ── */
-.brand{display:flex;align-items:center;gap:12px;margin-bottom:36px}
-.brand-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.brand-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text)}
-.brand-sub{font-size:10px;letter-spacing:.9px;color:var(--accent);text-transform:uppercase;margin-top:1px}
+  /* Inputs */
+  .input-group{margin-bottom:16px;}
+  .input-label{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;display:block;}
+  .input{width:100%;padding:14px 16px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border 0.2s;}
+  .input:focus{border-color:var(--primary);}
+  .input::placeholder{color:var(--text3);}
+  select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 7L11 1' stroke='%237B78A0' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+  select.input option{background:var(--surface2);}
 
-/* ── Progress ── */
-.prog-wrap{margin-bottom:28px}
-.prog-track{height:2px;background:var(--surface3);border-radius:1px;overflow:hidden;margin-bottom:8px}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:1px;transition:width .6s var(--ease)}
-.prog-label{font-size:11px;color:var(--text-dim);letter-spacing:.5px;text-transform:uppercase}
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+  .card-gradient{background:linear-gradient(135deg,var(--bg3),var(--bg4));border:1px solid var(--border2);}
 
-/* ── Typography ── */
-h1.hero-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,5.5vw,3rem);font-weight:800;line-height:1.1;letter-spacing:-.5px;background:linear-gradient(130deg,#e0f0f0 20%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
-h2.stitle{font-family:'Syne',sans-serif;font-size:clamp(1.35rem,4vw,1.8rem);font-weight:700;color:var(--text);margin-bottom:8px}
-.ssub{font-size:15px;color:var(--text-muted);margin-bottom:30px;line-height:1.65}
+  /* Gradient text */
+  .grad-text{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
-/* ── Hero bits ── */
-.pill-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,200,.09);border:1px solid rgba(0,212,200,.22);border-radius:100px;padding:5px 15px;font-size:11px;color:var(--accent);letter-spacing:.5px;margin-bottom:22px}
-.pulse-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulseDot 2s ease-in-out infinite}
-@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
+  /* Badge */
+  .badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;}
+  .badge-purple{background:rgba(79,70,229,0.15);color:var(--primary-light);}
+  .badge-green{background:rgba(16,185,129,0.15);color:var(--green);}
+  .badge-amber{background:rgba(245,158,11,0.15);color:var(--yellow);}
+  .badge-pink{background:rgba(236,72,153,0.15);color:#F472B6;}
 
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:36px}
-.stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:16px 10px;text-align:center}
-.stat-val{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent);display:block;line-height:1}
-.stat-lbl{font-size:10px;color:var(--text-dim);margin-top:5px;letter-spacing:.3px}
+  /* Progress bar */
+  .progress-track{height:4px;background:var(--bg3);border-radius:100px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--gradient);border-radius:100px;transition:width 0.3s;}
 
-/* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:15px 26px;border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:all .28s var(--ease);border:none;width:100%;text-decoration:none;-webkit-tap-highlight-color:transparent;user-select:none}
-.btn-primary{background:linear-gradient(135deg,var(--accent),#00b5aa);color:#050c14;font-weight:700;box-shadow:0 2px 0 rgba(0,212,200,.2)}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,212,200,.3)}
-.btn-primary:active{transform:translateY(0);box-shadow:none}
-.btn-ghost{background:transparent;border:1px solid var(--border-md);color:var(--text-muted)}
-.btn-ghost:hover{background:var(--surface2);color:var(--text);border-color:var(--accent)}
-.btn-ghost:active{transform:scale(.98)}
-.btn-row{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-top:28px}
-.btn-solo{margin-top:28px}
+  /* Misc helpers */
+  .px{padding-left:24px;padding-right:24px;}
+  .py{padding-top:24px;padding-bottom:24px;}
+  .row{display:flex;align-items:center;}
+  .col{display:flex;flex-direction:column;}
+  .gap-8{gap:8px;}
+  .gap-12{gap:12px;}
+  .gap-16{gap:16px;}
+  .flex-1{flex:1;}
+  .text-sm{font-size:13px;}
+  .text-xs{font-size:11px;}
+  .text-center{text-align:center;}
+  .text-muted{color:var(--text2);}
+  .text-dim{color:var(--text3);}
+  .fw-600{font-weight:600;}
+  .fw-500{font-weight:500;}
+  .mt-auto{margin-top:auto;}
+  .mb-8{margin-bottom:8px;}
+  .mb-12{margin-bottom:12px;}
+  .mb-16{margin-bottom:16px;}
+  .mb-24{margin-bottom:24px;}
+  .mb-32{margin-bottom:32px;}
 
-/* ── Form ── */
-.field{margin-bottom:18px}
-.field label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:7px;letter-spacing:.25px;text-transform:uppercase}
-.field input,.field select,.field textarea{
-  width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);
-  padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);
-  outline:none;transition:all .25s var(--ease);-webkit-appearance:none;appearance:none
-}
-.field input::placeholder,.field textarea::placeholder{color:var(--text-dim)}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,200,.11);background:rgba(0,212,200,.02)}
-.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%237fa2b4' stroke-width='1.5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer}
-.field select option{background:#0b1520}
-.field textarea{resize:vertical;min-height:90px;line-height:1.6}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  /* ───── SPLASH SCREEN ───── */
+  #splash{background:var(--bg);align-items:center;justify-content:center;gap:0;}
+  .splash-bg{position:absolute;inset:0;overflow:hidden;}
+  .splash-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.4;}
+  .orb1{width:300px;height:300px;background:#4F46E5;top:-80px;left:-60px;}
+  .orb2{width:250px;height:250px;background:#EC4899;bottom:-60px;right:-40px;}
+  .orb3{width:180px;height:180px;background:#7C3AED;top:50%;left:50%;transform:translate(-50%,-50%);}
+  .splash-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px 32px;}
+  .splash-logo{width:88px;height:88px;background:var(--gradient);border-radius:28px;display:flex;align-items:center;justify-content:center;margin-bottom:32px;box-shadow:0 8px 32px rgba(79,70,229,0.5);}
+  .splash-logo svg{width:44px;height:44px;}
+  .splash-title{font-family:'Sora',sans-serif;font-size:32px;font-weight:800;text-align:center;line-height:1.2;margin-bottom:12px;}
+  .splash-sub{font-size:15px;color:var(--text2);text-align:center;line-height:1.6;margin-bottom:48px;}
+  .splash-dots{display:flex;gap:8px;margin-bottom:40px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--text3);}
+  .dot.active{width:24px;border-radius:100px;background:var(--primary);}
 
-/* ── Tags/Chips ── */
-.tags-section{margin-bottom:22px}
-.tags-section-title{font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:9px}
-.tags-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
-.tag-item{position:relative}
-.tag-item input[type=checkbox]{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
-.tag-label{display:flex;align-items:center;gap:7px;padding:9px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text-muted);cursor:pointer;transition:all .22s var(--ease);user-select:none;-webkit-tap-highlight-color:transparent}
-.tag-label .ti{font-size:14px}
-.tag-item input:checked + .tag-label{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
-.tag-label:hover{border-color:var(--border-md);color:var(--text);background:var(--surface3)}
+  /* ───── ONBOARDING ───── */
+  #onboard{background:var(--bg);}
+  .onboard-hero{height:340px;position:relative;overflow:hidden;}
+  .onboard-illustration{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+  .floating-cards{position:relative;width:280px;height:280px;}
+  .float-card{position:absolute;background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);}
+  .float-card.c1{top:20px;left:0;width:160px;}
+  .float-card.c2{top:80px;right:0;width:150px;}
+  .float-card.c3{bottom:20px;left:20px;width:170px;}
+  .onboard-content{padding:0 28px 32px;flex:1;display:flex;flex-direction:column;}
+  .onboard-indicator{display:flex;gap:6px;margin-bottom:28px;}
+  .ind-dot{height:4px;border-radius:100px;background:var(--bg3);}
+  .ind-dot.active{background:var(--primary);flex:2;}
+  .ind-dot{flex:1;}
 
-/* ── Loading ── */
-.load-center{display:flex;flex-direction:column;align-items:center;text-align:center;padding:52px 16px}
-.spinner-wrap{width:88px;height:88px;position:relative;margin-bottom:32px}
-.spin-ring{position:absolute;inset:0;border-radius:50%;border:2px solid transparent}
-.spin-ring:nth-child(1){border-top-color:var(--accent);animation:spin 1.1s linear infinite}
-.spin-ring:nth-child(2){inset:9px;border-right-color:var(--accent2);animation:spin 1.7s linear infinite reverse}
-.spin-ring:nth-child(3){inset:20px;border-bottom-color:rgba(0,212,200,.45);animation:spin 2.1s linear infinite}
-.spin-core{position:absolute;inset:30px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;animation:pulseCore 1.4s ease-in-out infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulseCore{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.2);opacity:1}}
-.load-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:10px}
-.load-sub{font-size:14px;color:var(--text-muted);line-height:1.65;max-width:340px}
-.load-steps{margin-top:28px;width:100%;max-width:300px}
-.load-step{display:flex;align-items:center;gap:11px;padding:9px 0;font-size:13px;color:var(--text-dim);transition:all .3s}
-.load-step.done{color:var(--success)}
-.load-step.active{color:var(--text)}
-.sdot{width:7px;height:7px;border-radius:50%;background:var(--text-dim);flex-shrink:0;transition:all .3s}
-.load-step.done .sdot{background:var(--success)}
-.load-step.active .sdot{background:var(--accent);animation:pulseDot 1s infinite;box-shadow:0 0 0 4px rgba(0,212,200,.18)}
+  /* ───── AUTH ───── */
+  #login,#signup{background:var(--bg);}
+  .auth-header{padding:60px 24px 24px;background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%);}
+  .auth-icon{width:56px;height:56px;background:rgba(79,70,229,0.15);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;border:1px solid rgba(79,70,229,0.2);}
+  .social-btn{width:100%;padding:14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;margin-bottom:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:var(--text);transition:all 0.2s;}
+  .social-btn:active{background:var(--bg3);}
+  .divider{display:flex;align-items:center;gap:12px;margin:16px 0;}
+  .divider-line{flex:1;height:1px;background:var(--border);}
+  .divider-text{font-size:12px;color:var(--text3);}
+  .password-wrapper{position:relative;}
+  .password-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;}
+  
+  /* Gender option */
+  .gender-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+  .gender-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all 0.2s;}
+  .gender-card:hover{border-color:var(--primary);}
+  .gender-card.selected{border-color:var(--primary);background:rgba(79,70,229,0.1);}
+  .gender-icon{font-size:24px;}
+  .gender-label{font-size:13px;font-weight:500;color:var(--text2);}
+  .gender-card.selected .gender-label{color:var(--primary-light);}
 
-/* ── Results ── */
-.res-header{text-align:center;margin-bottom:28px}
-.res-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(30,201,151,.1);border:1px solid rgba(30,201,151,.28);border-radius:100px;padding:5px 14px;font-size:11px;color:var(--success);margin-bottom:18px}
-.res-name{font-family:'Syne',sans-serif;font-size:clamp(1.25rem,4vw,1.65rem);font-weight:800;color:var(--text);margin-bottom:7px}
-.res-sub{font-size:14px;color:var(--text-muted);line-height:1.55}
+  /* ───── PROFILE ───── */
+  #profile-basic,#profile-academic,#profile-upload,#profile-interests{background:var(--bg);}
+  .page-header{padding:52px 24px 20px;display:flex;align-items:center;gap:12px;}
+  .back-btn{width:40px;height:40px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .step-indicator{display:flex;align-items:center;gap:6px;margin-left:auto;}
+  .step-dot{width:8px;height:8px;border-radius:50%;background:var(--bg3);}
+  .step-dot.done{background:var(--green);}
+  .step-dot.active{background:var(--primary);width:20px;border-radius:100px;}
+  .upload-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:32px 24px;display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;margin-bottom:16px;}
+  .upload-zone:hover{border-color:var(--primary);background:rgba(79,70,229,0.05);}
+  .upload-icon{width:56px;height:56px;background:rgba(79,70,229,0.1);border-radius:16px;display:flex;align-items:center;justify-content:center;}
+  .result-table{width:100%;border-collapse:collapse;margin-bottom:12px;}
+  .result-table th{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;padding:8px 0;text-align:left;border-bottom:1px solid var(--border);}
+  .result-table td{padding:10px 0;font-size:14px;color:var(--text2);border-bottom:1px solid var(--border);}
+  .result-table td:last-child{color:var(--text);font-weight:500;}
+  .grade-badge{padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600;}
+  .grade-a{background:rgba(16,185,129,0.15);color:#34D399;}
+  .grade-b{background:rgba(79,70,229,0.15);color:var(--primary-light);}
+  .grade-c{background:rgba(245,158,11,0.15);color:#FCD34D;}
+  .interest-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+  .chip{padding:8px 16px;border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);color:var(--text2);background:var(--surface2);transition:all 0.2s;}
+  .chip.selected{border-color:var(--primary);background:rgba(79,70,229,0.1);color:var(--primary-light);}
 
-.career-cards{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
-.ccard{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:22px;position:relative;overflow:hidden;cursor:pointer;transition:all .3s var(--ease)}
-.ccard:hover{border-color:var(--border-md);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.25)}
-.ccard.top{border-color:rgba(0,212,200,.35);background:rgba(0,212,200,.025)}
-.ccard::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,var(--accent),var(--accent2));opacity:0;transition:opacity .3s}
-.ccard.top::before,.ccard:hover::before{opacity:1}
+  /* ───── ASSESSMENT ───── */
+  #assessment-hub{background:var(--bg);}
+  .assess-hero{padding:52px 24px 24px;background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 60%);}
+  .assess-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;margin-bottom:12px;transition:all 0.2s;}
+  .assess-card:active{transform:scale(0.98);}
+  .assess-card.done .assess-num{background:var(--green-bg);border-color:rgba(16,185,129,0.3);}
+  .assess-card.active-now .assess-num{background:rgba(79,70,229,0.15);border-color:rgba(79,70,229,0.3);}
+  .assess-num{width:44px;height:44px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .assess-info{flex:1;}
+  .assess-title{font-size:15px;font-weight:600;margin-bottom:2px;}
+  .assess-sub{font-size:13px;color:var(--text3);}
+  .assess-arrow{color:var(--text3);font-size:18px;}
 
-.ctop{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
-.crank{font-family:'Syne',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
-.crank.r1{color:var(--accent)}.crank.r2{color:var(--accent2)}.crank.r3{color:var(--text-muted)}
-.mbadge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:100px}
-.mbadge.hi{background:var(--accent-dim);color:var(--accent)}
-.mbadge.mid{background:var(--accent2-dim);color:var(--accent2)}
-.mbadge.ok{background:rgba(245,158,11,.1);color:var(--warn)}
+  /* ───── TEST SCREENS ───── */
+  #aptitude-test,#cognitive-test,#personality-test,#interest-test{background:var(--bg);}
+  .test-header{padding:52px 24px 20px;}
+  .test-progress{margin-bottom:24px;}
+  .test-q-num{font-size:12px;color:var(--text3);margin-bottom:6px;}
+  .test-question{font-family:'Sora',sans-serif;font-size:18px;font-weight:600;line-height:1.4;margin-bottom:24px;color:var(--text);}
+  .answer-opt{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px;cursor:pointer;font-size:15px;color:var(--text2);transition:all 0.2s;display:flex;align-items:center;gap:12px;}
+  .answer-opt:hover{border-color:var(--border2);background:var(--surface);}
+  .answer-opt.selected{border-color:var(--primary);background:rgba(79,70,229,0.1);color:var(--text);}
+  .opt-letter{width:28px;height:28px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--text3);flex-shrink:0;}
+  .answer-opt.selected .opt-letter{background:var(--primary);color:#fff;}
+  .scale-opts{display:flex;justify-content:space-between;gap:8px;margin-bottom:24px;}
+  .scale-opt{flex:1;padding:14px 4px;border-radius:var(--radius-sm);background:var(--surface2);border:1.5px solid var(--border);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all 0.2s;}
+  .scale-opt.selected{border-color:var(--primary);background:rgba(79,70,229,0.1);}
+  .scale-num{font-size:18px;font-weight:700;color:var(--text2);}
+  .scale-opt.selected .scale-num{color:var(--primary-light);}
 
-.ctitle{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:5px}
-.cdesc{font-size:13px;color:var(--text-muted);line-height:1.55;margin-bottom:14px}
-.cmeta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
-.mi{background:var(--surface);border-radius:8px;padding:8px;text-align:center}
-.mv{font-size:11px;font-weight:700;color:var(--text);display:block}
-.mk{font-size:9px;color:var(--text-dim);margin-top:2px;letter-spacing:.2px}
+  /* ───── PROCESSING ───── */
+  #processing{background:var(--bg);align-items:center;justify-content:center;}
+  .processing-ring{width:160px;height:160px;position:relative;margin-bottom:32px;}
+  .ring-outer{position:absolute;inset:0;border-radius:50%;border:3px solid var(--border);animation:spin 3s linear infinite;}
+  .ring-inner{position:absolute;inset:12px;border-radius:50%;border:3px solid transparent;border-top-color:var(--primary);border-right-color:var(--secondary);animation:spin 1.5s linear infinite reverse;}
+  .ring-center{position:absolute;inset:28px;background:linear-gradient(135deg,rgba(79,70,229,0.2),rgba(124,58,237,0.2));border-radius:50%;display:flex;align-items:center;justify-content:center;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .processing-step{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:8px;width:100%;}
+  .processing-step.done{background:var(--green-bg);}
+  .processing-step.active{background:rgba(79,70,229,0.1);}
+  .step-check{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  .step-check.done-check{background:var(--green);color:#fff;}
+  .step-check.active-check{background:var(--primary);animation:pulse 1s infinite;}
+  .step-check.pending-check{background:var(--surface2);border:1.5px solid var(--border);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
 
-.conf-row{display:flex;align-items:center;gap:9px}
-.conf-lbl{font-size:11px;color:var(--text-dim);width:76px;flex-shrink:0}
-.conf-track{flex:1;height:3px;background:var(--surface);border-radius:2px;overflow:hidden}
-.conf-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));animation:barIn 1.1s var(--ease) .2s both}
-@keyframes barIn{from{width:0!important}}
-.conf-pct{font-size:12px;font-weight:700;color:var(--accent);width:34px;text-align:right}
+  /* ───── RESULTS ───── */
+  #career-results{background:var(--bg);}
+  .results-header{padding:52px 24px 24px;background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%);}
+  .career-path-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:16px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+  .career-path-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gradient);}
+  .career-path-card.c2::before{background:linear-gradient(90deg,#7C3AED,#EC4899);}
+  .career-path-card.c3::before{background:linear-gradient(90deg,#F59E0B,#EC4899);}
+  .career-path-card:active{transform:scale(0.99);}
+  .career-rank{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;}
+  .career-title{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px;}
+  .career-why{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;}
+  .career-tags{display:flex;flex-wrap:wrap;gap:6px;}
+  .career-tag{font-size:11px;font-weight:500;padding:4px 10px;border-radius:100px;}
 
-.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:11px}
-.chip{font-size:10px;padding:3px 9px;border-radius:100px;background:var(--accent2-dim);color:var(--accent2);border:1px solid rgba(124,106,255,.2)}
+  /* ───── CAREER DETAIL ───── */
+  #career-detail{background:var(--bg);}
+  .detail-hero{padding:52px 24px 24px;background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%);}
+  .tab-nav{display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:var(--radius-sm);margin-bottom:20px;}
+  .tab-btn{flex:1;padding:10px 4px;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;border:none;background:transparent;color:var(--text3);font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+  .tab-btn.active{background:var(--primary);color:#fff;}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .course-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;}
+  .uni-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;gap:12px;}
+  .uni-logo{width:44px;height:44px;border-radius:10px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;}
+  .job-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);}
+  .job-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .pro-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:center;}
+  .pro-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;}
+  .industry-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+  .ind-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
 
-.rdm-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 0;margin-top:10px;cursor:pointer;font-size:12px;color:var(--accent);border-top:1px solid var(--border);user-select:none;-webkit-tap-highlight-color:transparent;transition:color .2s}
-.rdm-toggle:hover{color:#fff}
-.rdm-arrow{transition:transform .3s var(--ease);font-size:9px}
-.rdm-content{font-size:13px;color:var(--text-muted);line-height:1.7;padding:10px 0;display:none;border-bottom:1px solid var(--border)}
-.rdm-content.open{display:block;animation:slideIn .3s var(--ease)}
+  /* ───── SAVED ───── */
+  #saved{background:var(--bg);}
+  .saved-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;position:relative;overflow:hidden;}
+  .saved-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--gradient);}
 
-.res-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  /* ───── HISTORY ───── */
+  #history{background:var(--bg);}
+  .history-item{display:flex;gap:12px;margin-bottom:16px;}
+  .history-line{display:flex;flex-direction:column;align-items:center;}
+  .history-dot{width:12px;height:12px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:4px;}
+  .history-line-bar{width:2px;flex:1;background:var(--border);margin:6px auto 0;}
+  .history-content{flex:1;padding-bottom:8px;}
 
-/* ── Error ── */
-.err-box{background:rgba(220,50,50,.07);border:1px solid rgba(220,50,50,.22);border-radius:var(--r-sm);padding:14px 16px;font-size:14px;color:#e88;margin-top:14px;display:none;line-height:1.5}
+  /* ───── PROFILE/SETTINGS ───── */
+  #my-profile{background:var(--bg);}
+  .profile-hero{padding:52px 24px 32px;background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%);display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .avatar-big{width:88px;height:88px;border-radius:28px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;margin-bottom:16px;box-shadow:0 8px 24px rgba(79,70,229,0.4);}
+  .setting-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+  .setting-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 
-/* ── Confetti ── */
-.conf-piece{position:fixed;border-radius:2px;pointer-events:none;z-index:999;animation:confFall 3s ease-in forwards}
-@keyframes confFall{from{transform:translateY(-20px) rotate(0deg);opacity:1}to{transform:translateY(110vh) rotate(800deg);opacity:0}}
+  /* Bottom nav for main screens */
+  .main-nav{background:rgba(15,14,23,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 0 20px;}
+  .main-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;}
+  .main-nav-item svg{width:22px;height:22px;stroke:var(--text3);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:stroke 0.2s;}
+  .main-nav-item.active svg{stroke:var(--primary-light);}
+  .main-nav-item span{font-size:10px;color:var(--text3);font-weight:500;transition:color 0.2s;}
+  .main-nav-item.active span{color:var(--primary-light);}
 
-/* ── Responsive ── */
-@media(max-width:520px){
-  #app{padding:16px 14px;align-items:flex-start;padding-top:20px}
-  .card{padding:26px 18px;border-radius:16px}
-  .field-row{grid-template-columns:1fr}
-  .cmeta{grid-template-columns:1fr 1fr}
-  .res-actions{grid-template-columns:1fr}
-  .stats-row{gap:7px}
-  .stat-val{font-size:1.25rem}
-  .tags-grid{grid-template-columns:repeat(auto-fill,minmax(115px,1fr))}
-  .btn-row{grid-template-columns:1fr 1.8fr}
-  h1.hero-title{font-size:1.85rem}
-}
-@media(min-width:860px){
-  #app{padding:40px}
-  .screen{max-width:620px}
-  .card{padding:48px}
-}
+  /* Toast */
+  .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 20px;border-radius:100px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+  .toast.show{opacity:1;}
+
+  /* Scrollable content area */
+  .scroll-content{flex:1;overflow-y:auto;padding-bottom:20px;}
+  .scroll-content::-webkit-scrollbar{display:none;}
+
+  /* Outer wrapper (desktop) */
+  .outer{display:flex;gap:40px;align-items:flex-start;max-width:900px;margin:0 auto;}
+  .side-info{width:200px;flex-shrink:0;padding-top:40px;}
+  .side-info h3{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+  .side-info p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+  .screen-list{list-style:none;}
+  .screen-list li{font-size:13px;color:var(--text3);padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:color 0.2s;}
+  .screen-list li:hover{color:var(--primary-light);}
+  .screen-list li.current{color:var(--primary-light);font-weight:600;}
+
+  @media(max-width:700px){
+    .outer{flex-direction:column;align-items:center;}
+    .side-info{display:none;}
+    body{padding:0;}
+    .phone{border-radius:0;width:100vw;height:100svh;}
+  }
 </style>
 </head>
 <body>
-
-<div class="bg">
-  <div class="bg-grad"></div>
-  <div class="bg-grid"></div>
-</div>
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-
-<div id="app">
-
-  <!-- ── SCREEN 0: Hero ── -->
-  <div class="screen active" id="s0">
-    <div class="card">
-      <div class="brand">
-        <div class="brand-icon">🎯</div>
-        <div><div class="brand-name">CareerIQ</div><div class="brand-sub">AI Predictor</div></div>
-      </div>
-      <div class="pill-badge"><div class="pulse-dot"></div> Powered by Claude AI</div>
-      <h1 class="hero-title">Discover Your Perfect Career Path</h1>
-      <p class="ssub" style="margin-bottom:28px">Answer a few smart questions and our AI will analyse your unique profile — skills, interests, goals — and map out the careers where you'll thrive most.</p>
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-val">500+</span><div class="stat-lbl">Career Paths</div></div>
-        <div class="stat-card"><span class="stat-val">94%</span><div class="stat-lbl">Accuracy Rate</div></div>
-        <div class="stat-card"><span class="stat-val">&lt;2min</span><div class="stat-lbl">To Results</div></div>
-      </div>
-      <button class="btn btn-primary" onclick="go(1)">Start My Career Analysis →</button>
-    </div>
+<div class="outer">
+  <!-- Side navigation (desktop) -->
+  <div class="side-info">
+    <h3>Smart Career<br>Predictor</h3>
+    <p>AI-powered career guidance for Nigerian secondary school students.</p>
+    <p style="font-size:12px;color:var(--text3);">Tap any screen to jump:</p>
+    <ul class="screen-list" id="screenList"></ul>
   </div>
 
-  <!-- ── SCREEN 1: Personal Info ── -->
-  <div class="screen" id="s1">
-    <div class="card">
-      <div class="brand"><div class="brand-icon">🎯</div><div><div class="brand-name">CareerIQ</div></div></div>
-      <div class="prog-wrap">
-        <div class="prog-track"><div class="prog-fill" style="width:25%"></div></div>
-        <div class="prog-label">Step 1 of 4 — About You</div>
-      </div>
-      <h2 class="stitle">Let's get to know you</h2>
-      <p class="ssub">Basic info helps us personalise every prediction just for you.</p>
+  <!-- Phone frame -->
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" id="phoneScreen">
 
-      <div class="field">
-        <label>Your Name</label>
-        <input type="text" id="f-name" placeholder="First name is fine" />
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Age</label>
-          <input type="number" id="f-age" placeholder="e.g. 24" min="13" max="70" />
+      <!-- ══════════════════════════════════
+           SCREEN 1: SPLASH
+      ══════════════════════════════════ -->
+      <div class="page active" id="splash" data-name="Splash">
+        <div class="splash-bg">
+          <div class="splash-orb orb1"></div>
+          <div class="splash-orb orb2"></div>
+          <div class="splash-orb orb3"></div>
         </div>
-        <div class="field">
-          <label>Country</label>
-          <input type="text" id="f-country" placeholder="e.g. Nigeria" />
-        </div>
-      </div>
-      <div class="field">
-        <label>Current Status</label>
-        <select id="f-status">
-          <option value="">Select your status…</option>
-          <option>Secondary School Student</option>
-          <option>Undergraduate Student</option>
-          <option>Recent Graduate</option>
-          <option>Working Professional</option>
-          <option>Career Changer</option>
-          <option>Entrepreneur / Freelancer</option>
-          <option>Unemployed / Job Seeker</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Biggest Career Goal <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
-        <input type="text" id="f-goal" placeholder="e.g. Financial freedom, build products, work remotely…" />
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="go(0)">← Back</button>
-        <button class="btn btn-primary" onclick="step1Next()">Continue →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SCREEN 2: Skills ── -->
-  <div class="screen" id="s2">
-    <div class="card">
-      <div class="brand"><div class="brand-icon">🎯</div><div><div class="brand-name">CareerIQ</div></div></div>
-      <div class="prog-wrap">
-        <div class="prog-track"><div class="prog-fill" style="width:50%"></div></div>
-        <div class="prog-label">Step 2 of 4 — Your Skills</div>
-      </div>
-      <h2 class="stitle">What are you good at?</h2>
-      <p class="ssub">Select every skill that applies — beginner counts too.</p>
-
-      <div class="tags-section">
-        <div class="tags-section-title">💻 Tech & Digital</div>
-        <div class="tags-grid">
-          <div class="tag-item"><input type="checkbox" id="sk1" name="skill" value="Programming / Coding"><label class="tag-label" for="sk1">💻 Coding</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk2" name="skill" value="Data Analysis"><label class="tag-label" for="sk2">📊 Data Analysis</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk3" name="skill" value="Web / UI Design"><label class="tag-label" for="sk3">🎨 Web Design</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk4" name="skill" value="AI / Machine Learning"><label class="tag-label" for="sk4">🤖 AI / ML</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk5" name="skill" value="Cybersecurity"><label class="tag-label" for="sk5">🔐 Cybersecurity</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk6" name="skill" value="Video Editing / Production"><label class="tag-label" for="sk6">🎬 Video Editing</label></div>
-        </div>
-      </div>
-      <div class="tags-section">
-        <div class="tags-section-title">🧠 Business & People</div>
-        <div class="tags-grid">
-          <div class="tag-item"><input type="checkbox" id="sk7" name="skill" value="Public Speaking"><label class="tag-label" for="sk7">🎤 Public Speaking</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk8" name="skill" value="Writing / Content Creation"><label class="tag-label" for="sk8">✍️ Writing</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk9" name="skill" value="Sales & Negotiation"><label class="tag-label" for="sk9">🤝 Sales</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk10" name="skill" value="Project Management"><label class="tag-label" for="sk10">📋 Project Mgmt</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk11" name="skill" value="Marketing / Social Media"><label class="tag-label" for="sk11">📱 Marketing</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk12" name="skill" value="Financial Planning / Accounting"><label class="tag-label" for="sk12">💰 Finance</label></div>
-        </div>
-      </div>
-      <div class="tags-section">
-        <div class="tags-section-title">🎯 Other Strengths</div>
-        <div class="tags-grid">
-          <div class="tag-item"><input type="checkbox" id="sk13" name="skill" value="Problem Solving / Critical Thinking"><label class="tag-label" for="sk13">🧩 Problem Solving</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk14" name="skill" value="Research & Analysis"><label class="tag-label" for="sk14">🔬 Research</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk15" name="skill" value="Teaching / Mentoring"><label class="tag-label" for="sk15">📚 Teaching</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk16" name="skill" value="Leadership / Team Management"><label class="tag-label" for="sk16">👑 Leadership</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk17" name="skill" value="Art / Illustration / 3D Design"><label class="tag-label" for="sk17">🖼️ Art & Design</label></div>
-          <div class="tag-item"><input type="checkbox" id="sk18" name="skill" value="Customer Service / Relations"><label class="tag-label" for="sk18">💬 Customer Service</label></div>
+        <div class="splash-content">
+          <div class="splash-logo">
+            <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="22" cy="22" r="16" stroke="white" stroke-width="2" opacity="0.3"/>
+              <path d="M14 22c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="22" cy="22" r="3" fill="white"/>
+              <path d="M22 8V6M22 38v-2M36 22h2M6 22H4" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+              <path d="M18 14l2 4M24 26l2 4M30 16l-4 2M14 26l-4 2" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+            </svg>
+          </div>
+          <h1 class="splash-title"><span class="grad-text">Smart Career</span><br>Predictor</h1>
+          <p class="splash-sub">AI-powered career guidance tailored for Nigerian secondary school students</p>
+          <div style="flex:1"></div>
+          <div style="width:100%;">
+            <button class="btn btn-primary mb-12" onclick="goTo('onboard')">Get Started</button>
+            <button class="btn btn-outline" onclick="goTo('login')">I already have an account</button>
+          </div>
         </div>
       </div>
 
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="go(1)">← Back</button>
-        <button class="btn btn-primary" onclick="go(3)">Continue →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SCREEN 3: Interests ── -->
-  <div class="screen" id="s3">
-    <div class="card">
-      <div class="brand"><div class="brand-icon">🎯</div><div><div class="brand-name">CareerIQ</div></div></div>
-      <div class="prog-wrap">
-        <div class="prog-track"><div class="prog-fill" style="width:75%"></div></div>
-        <div class="prog-label">Step 3 of 4 — Your Interests</div>
-      </div>
-      <h2 class="stitle">What excites you?</h2>
-      <p class="ssub">Passion is the #1 predictor of career success. Pick everything that resonates.</p>
-
-      <div class="tags-grid" style="margin-bottom:24px">
-        <div class="tag-item"><input type="checkbox" id="i1" name="interest" value="Technology & Innovation"><label class="tag-label" for="i1">🚀 Technology</label></div>
-        <div class="tag-item"><input type="checkbox" id="i2" name="interest" value="Healthcare & Medicine"><label class="tag-label" for="i2">🏥 Healthcare</label></div>
-        <div class="tag-item"><input type="checkbox" id="i3" name="interest" value="Business & Entrepreneurship"><label class="tag-label" for="i3">💼 Business</label></div>
-        <div class="tag-item"><input type="checkbox" id="i4" name="interest" value="Creative Arts & Design"><label class="tag-label" for="i4">🎨 Arts & Design</label></div>
-        <div class="tag-item"><input type="checkbox" id="i5" name="interest" value="Education & Teaching"><label class="tag-label" for="i5">📚 Education</label></div>
-        <div class="tag-item"><input type="checkbox" id="i6" name="interest" value="Finance & Investment"><label class="tag-label" for="i6">📈 Finance</label></div>
-        <div class="tag-item"><input type="checkbox" id="i7" name="interest" value="Environment & Sustainability"><label class="tag-label" for="i7">🌱 Environment</label></div>
-        <div class="tag-item"><input type="checkbox" id="i8" name="interest" value="Media & Entertainment"><label class="tag-label" for="i8">🎬 Media</label></div>
-        <div class="tag-item"><input type="checkbox" id="i9" name="interest" value="Law & Justice"><label class="tag-label" for="i9">⚖️ Law</label></div>
-        <div class="tag-item"><input type="checkbox" id="i10" name="interest" value="Science & Research"><label class="tag-label" for="i10">🔬 Science</label></div>
-        <div class="tag-item"><input type="checkbox" id="i11" name="interest" value="Sports & Fitness"><label class="tag-label" for="i11">⚽ Sports</label></div>
-        <div class="tag-item"><input type="checkbox" id="i12" name="interest" value="Social Impact & NGOs"><label class="tag-label" for="i12">🌍 Social Impact</label></div>
-        <div class="tag-item"><input type="checkbox" id="i13" name="interest" value="Food & Agriculture"><label class="tag-label" for="i13">🌾 Agriculture</label></div>
-        <div class="tag-item"><input type="checkbox" id="i14" name="interest" value="Real Estate & Construction"><label class="tag-label" for="i14">🏗️ Real Estate</label></div>
-        <div class="tag-item"><input type="checkbox" id="i15" name="interest" value="Fashion & Beauty"><label class="tag-label" for="i15">👗 Fashion</label></div>
-        <div class="tag-item"><input type="checkbox" id="i16" name="interest" value="Gaming & Esports"><label class="tag-label" for="i16">🎮 Gaming</label></div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="go(2)">← Back</button>
-        <button class="btn btn-primary" onclick="go(4)">Continue →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SCREEN 4: Final Details ── -->
-  <div class="screen" id="s4">
-    <div class="card">
-      <div class="brand"><div class="brand-icon">🎯</div><div><div class="brand-name">CareerIQ</div></div></div>
-      <div class="prog-wrap">
-        <div class="prog-track"><div class="prog-fill" style="width:95%"></div></div>
-        <div class="prog-label">Step 4 of 4 — Final Details</div>
-      </div>
-      <h2 class="stitle">Almost there! 🎉</h2>
-      <p class="ssub">Last few details and your AI career prediction will be ready.</p>
-
-      <div class="field">
-        <label>Highest Education Level</label>
-        <select id="f-edu">
-          <option value="">Select education level…</option>
-          <option>Secondary School / WAEC / NECO</option>
-          <option>OND / National Diploma</option>
-          <option>HND / Higher National Diploma</option>
-          <option>Bachelor's Degree (BSc / BA / BEng)</option>
-          <option>Master's Degree (MSc / MBA / MA)</option>
-          <option>PhD / Doctorate</option>
-          <option>Professional Certification only</option>
-          <option>Self-Taught / Bootcamp Graduate</option>
-          <option>No formal education</option>
-        </select>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Preferred Work Style</label>
-          <select id="f-ws">
-            <option value="">Work preference…</option>
-            <option>Remote / Work from Home</option>
-            <option>In-Office / On-site</option>
-            <option>Hybrid</option>
-            <option>Freelance / Independent</option>
-            <option>No preference</option>
-          </select>
+      <!-- ══════════════════════════════════
+           SCREEN 2: ONBOARDING
+      ══════════════════════════════════ -->
+      <div class="page" id="onboard" data-name="Onboarding">
+        <div class="onboard-hero" style="background:linear-gradient(180deg,#1A1828 0%,#0F0E17 100%);display:flex;align-items:center;justify-content:center;">
+          <div style="position:relative;width:300px;height:280px;">
+            <div class="float-card c1" style="animation:floatA 3s ease-in-out infinite;">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">Best Match</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text);">Software Engineer</div>
+              <div style="margin-top:8px;height:3px;background:var(--gradient);border-radius:100px;"></div>
+            </div>
+            <div class="float-card c2" style="animation:floatB 3.5s ease-in-out infinite;">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">🎯 Skills Match</div>
+              <div style="font-size:13px;font-weight:500;">Analytical<br>Problem Solving</div>
+            </div>
+            <div class="float-card c3" style="animation:floatA 4s ease-in-out infinite;">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">🏛️ Top University</div>
+              <div style="font-size:13px;font-weight:600;">University of Lagos</div>
+              <div style="font-size:11px;color:var(--green);">Computer Science</div>
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <label>Salary Target</label>
-          <select id="f-sal">
-            <option value="">Target salary…</option>
-            <option>Entry level (&lt; ₦5M / $10k/yr)</option>
-            <option>Mid level (₦5M–₦20M / $10k–$40k)</option>
-            <option>Senior (₦20M–₦50M / $40k–$100k)</option>
-            <option>High earner (₦50M+ / $100k+)</option>
-            <option>Not a priority right now</option>
-          </select>
+        <style>
+          @keyframes floatA{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+          @keyframes floatB{0%,100%{transform:translateY(-4px);}50%{transform:translateY(4px);}}
+        </style>
+        <div class="onboard-content">
+          <div class="onboard-indicator" style="margin-top:8px;">
+            <div class="ind-dot active"></div>
+            <div class="ind-dot"></div>
+            <div class="ind-dot"></div>
+          </div>
+          <h2 style="font-family:'Sora',sans-serif;font-size:26px;font-weight:700;margin-bottom:12px;line-height:1.3;">Discover Your <span class="grad-text">Ideal Career</span></h2>
+          <p style="font-size:15px;color:var(--text2);line-height:1.7;margin-bottom:32px;">Take assessments designed by experts. Our AI analyses your strengths, interests, and academic performance to guide you to the right path.</p>
+          <div style="margin-top:auto;">
+            <button class="btn btn-primary mb-12" onclick="goTo('signup')">Continue</button>
+            <button class="btn btn-ghost" style="width:100%;text-align:center;" onclick="goTo('login')">Already have an account? Sign in</button>
+          </div>
         </div>
       </div>
-      <div class="field">
-        <label>Anything else for AI to consider? <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
-        <textarea id="f-extra" placeholder="e.g. I want to work in Africa, I have 2 years of customer service experience, I'm passionate about fintech…"></textarea>
-      </div>
 
-      <div id="err-box" class="err-box"></div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="go(3)">← Back</button>
-        <button class="btn btn-primary" onclick="predict()">✨ Predict My Career</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SCREEN 5: Loading ── -->
-  <div class="screen" id="s5">
-    <div class="card">
-      <div class="load-center">
-        <div class="spinner-wrap">
-          <div class="spin-ring"></div>
-          <div class="spin-ring"></div>
-          <div class="spin-ring"></div>
-          <div class="spin-core"></div>
+      <!-- ══════════════════════════════════
+           SCREEN 3: LOGIN
+      ══════════════════════════════════ -->
+      <div class="page" id="login" data-name="Login">
+        <div class="auth-header">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+            <div class="back-btn" onclick="goTo('splash')">←</div>
+          </div>
+          <div class="auth-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+          </div>
+          <h2 style="font-family:'Sora',sans-serif;font-size:26px;font-weight:700;margin-bottom:6px;">Welcome back</h2>
+          <p style="color:var(--text2);font-size:15px;">Sign in to continue your journey</p>
         </div>
-        <div class="load-title">Analysing Your Profile…</div>
-        <p class="load-sub">Claude AI is cross-referencing your skills, interests, and goals against hundreds of career paths to find your ideal matches.</p>
-        <div class="load-steps">
-          <div class="load-step active" id="ls-a"><div class="sdot"></div>Processing skills &amp; interests</div>
-          <div class="load-step" id="ls-b"><div class="sdot"></div>Mapping to career clusters</div>
-          <div class="load-step" id="ls-c"><div class="sdot"></div>Calculating match scores</div>
-          <div class="load-step" id="ls-d"><div class="sdot"></div>Building your career roadmap</div>
+        <div class="scroll-content px py">
+          <div class="social-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Continue with Google
+          </div>
+          <div class="divider"><div class="divider-line"></div><span class="divider-text">or sign in with email</span><div class="divider-line"></div></div>
+          <div class="input-group">
+            <label class="input-label">Email address</label>
+            <input type="email" class="input" placeholder="you@example.com">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Password</label>
+            <div class="password-wrapper">
+              <input type="password" class="input" placeholder="Enter your password" id="loginPwd">
+              <button class="password-toggle" onclick="togglePwd('loginPwd')">👁</button>
+            </div>
+          </div>
+          <div style="text-align:right;margin-bottom:24px;"><button class="btn-ghost" style="font-size:13px;">Forgot password?</button></div>
+          <button class="btn btn-primary mb-12" onclick="goTo('assessment-hub')">Sign In</button>
+          <p style="text-align:center;font-size:14px;color:var(--text3);">Don't have an account? <button class="btn-ghost" style="font-size:14px;" onclick="goTo('signup')">Sign up</button></p>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- ── SCREEN 6: Results ── -->
-  <div class="screen" id="s6">
-    <div class="card">
-      <div class="res-header">
-        <div class="res-badge">✅ Analysis Complete</div>
-        <div class="res-name" id="res-name">Your Career Matches</div>
-        <div class="res-sub" id="res-sub">Based on your unique profile, here are your top 3 career paths</div>
+      <!-- ══════════════════════════════════
+           SCREEN 4: SIGN UP
+      ══════════════════════════════════ -->
+      <div class="page" id="signup" data-name="Sign Up">
+        <div class="auth-header">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+            <div class="back-btn" onclick="goTo('onboard')">←</div>
+            <div style="flex:1;"></div>
+            <div class="step-indicator">
+              <div class="step-dot active"></div>
+              <div class="step-dot"></div>
+              <div class="step-dot"></div>
+              <div class="step-dot"></div>
+            </div>
+          </div>
+          <h2 style="font-family:'Sora',sans-serif;font-size:26px;font-weight:700;margin-bottom:6px;">Create Account</h2>
+          <p style="color:var(--text2);font-size:15px;">Step 1 of 4 — Basic Information</p>
+        </div>
+        <div class="scroll-content px" style="padding-top:20px;">
+          <div class="input-group">
+            <label class="input-label">Full Name</label>
+            <input type="text" class="input" placeholder="Enter your full name">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Email Address</label>
+            <input type="email" class="input" placeholder="you@example.com">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Phone Number</label>
+            <input type="tel" class="input" placeholder="+234 801 234 5678">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Date of Birth</label>
+            <input type="date" class="input">
+          </div>
+          <!-- GENDER OPTION (new feature added) -->
+          <div class="input-group">
+            <label class="input-label">Gender</label>
+            <div class="gender-grid">
+              <div class="gender-card" onclick="selectGender(this,'male')">
+                <div class="gender-icon">♂️</div>
+                <div class="gender-label">Male</div>
+              </div>
+              <div class="gender-card" onclick="selectGender(this,'female')">
+                <div class="gender-icon">♀️</div>
+                <div class="gender-label">Female</div>
+              </div>
+              <div class="gender-card" onclick="selectGender(this,'other')">
+                <div class="gender-icon">⚧</div>
+                <div class="gender-label">Other</div>
+              </div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Password</label>
+            <div class="password-wrapper">
+              <input type="password" class="input" placeholder="Create a strong password" id="signupPwd">
+              <button class="password-toggle" onclick="togglePwd('signupPwd')">👁</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:24px;">
+            <input type="checkbox" style="margin-top:3px;accent-color:var(--primary);">
+            <span style="font-size:13px;color:var(--text3);line-height:1.5;">I agree to the <span style="color:var(--primary-light);">Terms of Service</span> and <span style="color:var(--primary-light);">Privacy Policy</span></span>
+          </div>
+          <button class="btn btn-primary mb-12" onclick="goTo('profile-basic')">Continue →</button>
+          <p style="text-align:center;font-size:14px;color:var(--text3);padding-bottom:20px;">Already have an account? <button class="btn-ghost" style="font-size:14px;" onclick="goTo('login')">Sign in</button></p>
+        </div>
       </div>
-      <div class="career-cards" id="cc"></div>
-      <div class="res-actions">
-        <button class="btn btn-ghost" onclick="go(0)" style="font-size:14px">🔄 Start Over</button>
-        <button class="btn btn-primary" onclick="shareResult()" style="font-size:14px">📤 Share Results</button>
-      </div>
-    </div>
-  </div>
 
-</div>
+      <!-- ══════════════════════════════════
+           SCREEN 5: PROFILE — BASIC INFO
+      ══════════════════════════════════ -->
+      <div class="page" id="profile-basic" data-name="Profile: Basic Info">
+        <div class="page-header">
+          <div class="back-btn" onclick="goTo('signup')">←</div>
+          <div style="flex:1;padding-left:12px;">
+            <div style="font-size:12px;color:var(--text3);">Step 2 of 4</div>
+            <div style="font-size:16px;font-weight:600;">School Profile</div>
+          </div>
+          <div class="step-indicator">
+            <div class="step-dot done"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+          </div>
+        </div>
+        <div class="scroll-content px">
+          <div style="margin-bottom:24px;">
+            <div style="font-size:24px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:4px;">School Details</div>
+            <div style="font-size:14px;color:var(--text2);">Tell us about your school and academic level</div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">School Name</label>
+            <input type="text" class="input" placeholder="e.g. King's College Lagos">
+          </div>
+          <div class="input-group">
+            <label class="input-label">School Type</label>
+            <select class="input">
+              <option value="">Select school type</option>
+              <option>Government School</option>
+              <option>Private School</option>
+              <option>Mission/Faith School</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">State</label>
+            <select class="input">
+              <option value="">Select state</option>
+              <option>Lagos</option><option>Abuja (FCT)</option><option>Kano</option>
+              <option>Rivers</option><option>Ogun</option><option>Oyo</option>
+              <option>Anambra</option><option>Enugu</option><option>Delta</option>
+              <option>Kaduna</option><option>Plateau</option><option>Imo</option>
+            </select>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="input-group">
+              <label class="input-label">Class Level</label>
+              <select class="input">
+                <option value="">Select</option>
+                <option>JSS 1</option><option>JSS 2</option><option>JSS 3</option>
+                <option>SSS 1</option><option>SSS 2</option><option>SSS 3</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Department</label>
+              <select class="input">
+                <option value="">Select</option>
+                <option>Science</option>
+                <option>Arts</option>
+                <option>Commercial</option>
+                <option>Technical</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Preferred Language</label>
+            <select class="input">
+              <option>English</option>
+              <option>Yoruba</option>
+              <option>Igbo</option>
+              <option>Hausa</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="margin-top:8px;" onclick="goTo('profile-academic')">Continue →</button>
+          <div style="height:24px;"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 6: PROFILE — ACADEMIC RECORDS
+      ══════════════════════════════════ -->
+      <div class="page" id="profile-academic" data-name="Profile: Academic Records">
+        <div class="page-header">
+          <div class="back-btn" onclick="goTo('profile-basic')">←</div>
+          <div style="flex:1;padding-left:12px;">
+            <div style="font-size:12px;color:var(--text3);">Step 3 of 4</div>
+            <div style="font-size:16px;font-weight:600;">Academic Records</div>
+          </div>
+          <div class="step-indicator">
+            <div class="step-dot done"></div>
+            <div class="step-dot done"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+          </div>
+        </div>
+        <div class="scroll-content px">
+          <div style="margin-bottom:20px;">
+            <div style="font-size:24px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:4px;">Your Results</div>
+            <div style="font-size:14px;color:var(--text2);">Enter your subject grades from JSS2 to SSS3</div>
+          </div>
+          <!-- Term selector -->
+          <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;margin-bottom:16px;">
+            <div style="padding:8px 16px;background:var(--primary);border-radius:100px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;flex-shrink:0;">JSS 2</div>
+            <div style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;cursor:pointer;flex-shrink:0;">JSS 3</div>
+            <div style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;cursor:pointer;flex-shrink:0;">SSS 1</div>
+            <div style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;cursor:pointer;flex-shrink:0;">SSS 2</div>
+            <div style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;cursor:pointer;flex-shrink:0;">SSS 3</div>
+          </div>
+          <div class="card" style="padding:4px 0;margin-bottom:16px;">
+            <table class="result-table" style="padding:0 16px;">
+              <thead><tr><th style="padding-left:16px;">Subject</th><th>Score</th><th style="padding-right:16px;">Grade</th></tr></thead>
+              <tbody id="gradesBody">
+                <tr><td style="padding-left:16px;color:var(--text);">Mathematics</td><td><input type="number" class="input" style="width:64px;padding:6px 10px;font-size:13px;" placeholder="—" max="100" min="0"></td><td style="padding-right:16px;"><span class="grade-badge grade-a">A</span></td></tr>
+                <tr><td style="padding-left:16px;color:var(--text);">English</td><td><input type="number" class="input" style="width:64px;padding:6px 10px;font-size:13px;" placeholder="—" max="100" min="0"></td><td style="padding-right:16px;"><span class="grade-badge grade-b">B</span></td></tr>
+                <tr><td style="padding-left:16px;color:var(--text);">Physics</td><td><input type="number" class="input" style="width:64px;padding:6px 10px;font-size:13px;" placeholder="—" max="100" min="0"></td><td style="padding-right:16px;"><span class="grade-badge grade-a">A</span></td></tr>
+                <tr><td style="padding-left:16px;color:var(--text);">Chemistry</td><td><input type="number" class="input" style="width:64px;padding:6px 10px;font-size:13px;" placeholder="—" max="100" min="0"></td><td style="padding-right:16px;"><span class="grade-badge grade-b">B</span></td></tr>
+                <tr><td style="padding-left:16px;color:var(--text);">Biology</td><td><input type="number" class="input" style="width:64px;padding:6px 10px;font-size:13px;" placeholder="—" max="100" min="0"></td><td style="padding-right:16px;"><span class="grade-badge grade-c">C</span></td></tr>
+                <tr><td style="padding-left:16px;color:var(--text);">Further Maths</td><td><input type="number" class="input" style="width:64px;padding:6px 10px;font-size:13px;" placeholder="—" max="100" min="0"></td><td style="padding-right:16px;"><span class="grade-badge grade-a">A</span></td></tr>
+                <tr><td style="padding-left:16px;color:var(--text);">Economics</td><td><input type="number" class="input" style="width:64px;padding:6px 10px;font-size:13px;" placeholder="—" max="100" min="0"></td><td style="padding-right:16px;"><span class="grade-badge grade-b">B</span></td></tr>
+                <tr><td style="padding-left:16px;color:var(--text);">Civic Education</td><td><input type="number" class="input" style="width:64px;padding:6px 10px;font-size:13px;" placeholder="—" max="100" min="0"></td><td style="padding-right:16px;"><span class="grade-badge grade-b">B</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <button class="btn btn-outline mb-12" onclick="alert('Add subject')">+ Add Subject</button>
+          <button class="btn btn-primary" onclick="goTo('profile-upload')">Continue →</button>
+          <div style="height:24px;"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 7: PROFILE — UPLOAD RESULT
+      ══════════════════════════════════ -->
+      <div class="page" id="profile-upload" data-name="Profile: Upload Result">
+        <div class="page-header">
+          <div class="back-btn" onclick="goTo('profile-academic')">←</div>
+          <div style="flex:1;padding-left:12px;">
+            <div style="font-size:12px;color:var(--text3);">Optional</div>
+            <div style="font-size:16px;font-weight:600;">Upload Results</div>
+          </div>
+          <div class="step-indicator">
+            <div class="step-dot done"></div>
+            <div class="step-dot done"></div>
+            <div class="step-dot done"></div>
+            <div class="step-dot active"></div>
+          </div>
+        </div>
+        <div class="scroll-content px">
+          <div style="margin-bottom:24px;">
+            <div style="font-size:24px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:4px;">Upload Your Results</div>
+            <div style="font-size:14px;color:var(--text2);line-height:1.6;">Upload your official school report cards. This helps our AI give you more accurate career recommendations. <span style="color:var(--primary-light);">(Optional)</span></div>
+          </div>
+          <div class="upload-zone">
+            <div class="upload-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            </div>
+            <div style="font-size:15px;font-weight:600;">Tap to Upload</div>
+            <div style="font-size:13px;color:var(--text3);text-align:center;">PDF, JPG, PNG up to 10MB each<br>Report cards, result sheets, BECE, WAEC</div>
+          </div>
+          <!-- Mock uploaded file -->
+          <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div style="width:40px;height:40px;background:rgba(239,68,68,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;">📄</div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:600;">SSS2_Result_2024.pdf</div>
+              <div style="font-size:12px;color:var(--green);">✓ Uploaded successfully</div>
+            </div>
+            <button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;">✕</button>
+          </div>
+          <div class="card card-gradient" style="margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:600;color:var(--primary-light);margin-bottom:6px;">🔒 Your data is secure</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.6;">Your results are encrypted and used only to improve your career recommendations. We do not share them with third parties.</div>
+          </div>
+          <button class="btn btn-primary mb-12" onclick="goTo('profile-interests')">Continue →</button>
+          <button class="btn btn-ghost" style="width:100%;text-align:center;" onclick="goTo('profile-interests')">Skip for now</button>
+          <div style="height:24px;"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 8: PROFILE — INTERESTS
+      ══════════════════════════════════ -->
+      <div class="page" id="profile-interests" data-name="Profile: Interests">
+        <div class="page-header">
+          <div class="back-btn" onclick="goTo('profile-upload')">←</div>
+          <div style="flex:1;padding-left:12px;">
+            <div style="font-size:12px;color:var(--text3);">Optional</div>
+            <div style="font-size:16px;font-weight:600;">Your Interests</div>
+          </div>
+        </div>
+        <div class="scroll-content px">
+          <div style="margin-bottom:24px;">
+            <div style="font-size:24px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:4px;">What Interests You?</div>
+            <div style="font-size:14px;color:var(--text2);line-height:1.6;">Select all that apply. This helps personalise your career matches. <span style="color:var(--primary-light);">(Optional)</span></div>
+          </div>
+          <div style="margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Subject Interests</div>
+            <div class="interest-chips">
+              <div class="chip selected" onclick="toggleChip(this)">Mathematics</div>
+              <div class="chip" onclick="toggleChip(this)">Physics</div>
+              <div class="chip selected" onclick="toggleChip(this)">Computer Science</div>
+              <div class="chip" onclick="toggleChip(this)">Biology</div>
+              <div class="chip" onclick="toggleChip(this)">Chemistry</div>
+              <div class="chip" onclick="toggleChip(this)">Literature</div>
+              <div class="chip" onclick="toggleChip(this)">Economics</div>
+              <div class="chip" onclick="toggleChip(this)">Fine Art</div>
+              <div class="chip" onclick="toggleChip(this)">Music</div>
+              <div class="chip" onclick="toggleChip(this)">Government</div>
+            </div>
+          </div>
+          <div style="margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Career Areas</div>
+            <div class="interest-chips">
+              <div class="chip selected" onclick="toggleChip(this)">Technology</div>
+              <div class="chip" onclick="toggleChip(this)">Medicine</div>
+              <div class="chip" onclick="toggleChip(this)">Engineering</div>
+              <div class="chip" onclick="toggleChip(this)">Law</div>
+              <div class="chip" onclick="toggleChip(this)">Business</div>
+              <div class="chip" onclick="toggleChip(this)">Arts & Design</div>
+              <div class="chip" onclick="toggleChip(this)">Education</div>
+              <div class="chip" onclick="toggleChip(this)">Agriculture</div>
+              <div class="chip selected" onclick="toggleChip(this)">Finance</div>
+              <div class="chip" onclick="toggleChip(this)">Media</div>
+              <div class="chip" onclick="toggleChip(this)">Architecture</div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Preferred Career Fields (Optional)</label>
+            <input type="text" class="input" placeholder="e.g. Software Development, Medicine...">
+          </div>
+          <button class="btn btn-primary mt-4" onclick="goTo('assessment-hub')">Finish Setup →</button>
+          <div style="height:24px;"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 9: ASSESSMENT HUB
+      ══════════════════════════════════ -->
+      <div class="page" id="assessment-hub" data-name="Assessment Hub">
+        <div style="flex:1;display:flex;flex-direction:column;">
+          <div class="assess-hero">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+              <div>
+                <div style="font-size:13px;color:var(--text3);">Hello, Adaeze 👋</div>
+                <div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;">Your Assessments</div>
+              </div>
+              <div style="width:42px;height:42px;border-radius:12px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;">A</div>
+            </div>
+            <div class="card card-gradient" style="padding:16px 20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <div style="font-size:14px;font-weight:600;">Overall Progress</div>
+                <div style="font-size:13px;color:var(--primary-light);font-weight:600;">2 / 4 Done</div>
+              </div>
+              <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
+              <div style="font-size:12px;color:var(--text3);margin-top:8px;">Complete all 4 to get your career recommendations</div>
+            </div>
+          </div>
+          <div class="scroll-content px" style="padding-top:16px;">
+            <div class="assess-card done" onclick="goTo('aptitude-test')">
+              <div class="assess-num">✓</div>
+              <div class="assess-info">
+                <div class="assess-title">Aptitude Test</div>
+                <div class="assess-sub">Logical reasoning • 20 questions • 25 min</div>
+              </div>
+              <span class="badge badge-green">Done</span>
+            </div>
+            <div class="assess-card done" onclick="goTo('cognitive-test')">
+              <div class="assess-num">✓</div>
+              <div class="assess-info">
+                <div class="assess-title">Cognitive Test</div>
+                <div class="assess-sub">Memory & processing • 15 questions • 20 min</div>
+              </div>
+              <span class="badge badge-green">Done</span>
+            </div>
+            <div class="assess-card active-now" onclick="goTo('personality-test')">
+              <div class="assess-num">🧠</div>
+              <div class="assess-info">
+                <div class="assess-title">Personality Test</div>
+                <div class="assess-sub">Traits & behaviour • 30 questions • 15 min</div>
+              </div>
+              <span class="badge badge-purple">Next</span>
+            </div>
+            <div class="assess-card" onclick="goTo('interest-test')">
+              <div class="assess-num">4</div>
+              <div class="assess-info">
+                <div class="assess-title">Interest Inventory</div>
+                <div class="assess-sub">Career interests • 25 questions • 15 min</div>
+              </div>
+              <div class="assess-arrow">›</div>
+            </div>
+            <div style="margin-top:8px;padding:12px 0;border-top:1px solid var(--border);">
+              <div style="font-size:13px;color:var(--text3);text-align:center;">All 4 tests must be completed for AI analysis</div>
+            </div>
+          </div>
+        </div>
+        <div class="main-nav">
+          <div class="main-nav-item" onclick="goTo('assessment-hub')">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home</span>
+          </div>
+          <div class="main-nav-item active" onclick="goTo('assessment-hub')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            <span>Assess</span>
+          </div>
+          <div class="main-nav-item" onclick="goTo('career-results')">
+            <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>Results</span>
+          </div>
+          <div class="main-nav-item" onclick="goTo('saved')">
+            <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            <span>Saved</span>
+          </div>
+          <div class="main-nav-item" onclick="goTo('my-profile')">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profile</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 10: APTITUDE TEST
+      ══════════════════════════════════ -->
+      <div class="page" id="aptitude-test" data-name="Aptitude Test">
+        <div class="test-header">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+            <div class="back-btn" onclick="goTo('assessment-hub')">←</div>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:600;">Aptitude Test</div>
+            </div>
+            <div style="font-size:13px;color:var(--accent2);font-weight:600;">⏱ 22:14</div>
+          </div>
+          <div class="test-progress">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span class="test-q-num">Question 3 of 20</span>
+              <span style="font-size:12px;color:var(--text3);">15%</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width:15%"></div></div>
+          </div>
+        </div>
+        <div class="scroll-content px">
+          <p class="test-question">If a train travels 240km in 3 hours, how long will it take to travel 400km at the same speed?</p>
+          <div class="answer-opt" onclick="selectOpt(this)"><div class="opt-letter">A</div>4 hours 30 minutes</div>
+          <div class="answer-opt selected" onclick="selectOpt(this)"><div class="opt-letter">B</div>5 hours</div>
+          <div class="answer-opt" onclick="selectOpt(this)"><div class="opt-letter">C</div>5 hours 30 minutes</div>
+          <div class="answer-opt" onclick="selectOpt(this)"><div class="opt-letter">D</div>6 hours</div>
+          <div style="margin-top:24px;display:flex;gap:12px;">
+            <button class="btn btn-outline btn-sm">← Previous</button>
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="goTo('cognitive-test')">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 11: COGNITIVE TEST
+      ══════════════════════════════════ -->
+      <div class="page" id="cognitive-test" data-name="Cognitive Test">
+        <div class="test-header">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+            <div class="back-btn" onclick="goTo('assessment-hub')">←</div>
+            <div style="flex:1;"><div style="font-size:15px;font-weight:600;">Cognitive Test</div></div>
+            <div style="font-size:13px;color:var(--accent2);font-weight:600;">⏱ 18:40</div>
+          </div>
+          <div class="test-progress">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span class="test-q-num">Question 5 of 15</span>
+              <span style="font-size:12px;color:var(--text3);">33%</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width:33%"></div></div>
+          </div>
+        </div>
+        <div class="scroll-content px">
+          <p class="test-question">Look at the pattern: 2, 6, 18, 54, ___. What comes next?</p>
+          <div class="answer-opt" onclick="selectOpt(this)"><div class="opt-letter">A</div>108</div>
+          <div class="answer-opt" onclick="selectOpt(this)"><div class="opt-letter">B</div>144</div>
+          <div class="answer-opt selected" onclick="selectOpt(this)"><div class="opt-letter">C</div>162</div>
+          <div class="answer-opt" onclick="selectOpt(this)"><div class="opt-letter">D</div>216</div>
+          <div style="margin-top:20px;padding:16px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-sm);">
+            <div style="font-size:13px;color:var(--yellow);font-weight:600;margin-bottom:4px;">💡 Hint</div>
+            <div style="font-size:13px;color:var(--text2);">Look at the relationship between each consecutive number.</div>
+          </div>
+          <div style="margin-top:24px;display:flex;gap:12px;">
+            <button class="btn btn-outline btn-sm">← Previous</button>
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="goTo('personality-test')">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 12: PERSONALITY TEST
+      ══════════════════════════════════ -->
+      <div class="page" id="personality-test" data-name="Personality Test">
+        <div class="test-header">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+            <div class="back-btn" onclick="goTo('assessment-hub')">←</div>
+            <div style="flex:1;"><div style="font-size:15px;font-weight:600;">Personality Test</div></div>
+          </div>
+          <div class="test-progress">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span class="test-q-num">Question 8 of 30</span>
+              <span style="font-size:12px;color:var(--text3);">27%</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width:27%"></div></div>
+          </div>
+        </div>
+        <div class="scroll-content px">
+          <p class="test-question">When working on a group project, you usually prefer to:</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+            <div class="answer-opt selected" style="flex-direction:column;text-align:center;padding:20px 12px;" onclick="selectCard(this)">
+              <div style="font-size:24px;margin-bottom:8px;">🎯</div>
+              <div style="font-size:13px;">Take the lead and organise the team</div>
+            </div>
+            <div class="answer-opt" style="flex-direction:column;text-align:center;padding:20px 12px;" onclick="selectCard(this)">
+              <div style="font-size:24px;margin-bottom:8px;">🤝</div>
+              <div style="font-size:13px;">Support others and follow the plan</div>
+            </div>
+            <div class="answer-opt" style="flex-direction:column;text-align:center;padding:20px 12px;" onclick="selectCard(this)">
+              <div style="font-size:24px;margin-bottom:8px;">💡</div>
+              <div style="font-size:13px;">Generate creative ideas for the group</div>
+            </div>
+            <div class="answer-opt" style="flex-direction:column;text-align:center;padding:20px 12px;" onclick="selectCard(this)">
+              <div style="font-size:24px;margin-bottom:8px;">📊</div>
+              <div style="font-size:13px;">Analyse data and check quality</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <button class="btn btn-outline btn-sm">← Previous</button>
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="goTo('interest-test')">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 13: INTEREST TEST
+      ══════════════════════════════════ -->
+      <div class="page" id="interest-test" data-name="Interest Inventory">
+        <div class="test-header">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+            <div class="back-btn" onclick="goTo('assessment-hub')">←</div>
+            <div style="flex:1;"><div style="font-size:15px;font-weight:600;">Interest Inventory</div></div>
+          </div>
+          <div class="test-progress">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span class="test-q-num">Question 12 of 25</span>
+              <span style="font-size:12px;color:var(--text3);">48%</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width:48%"></div></div>
+          </div>
+        </div>
+        <div class="scroll-content px">
+          <p class="test-question">How interested are you in building and programming software applications?</p>
+          <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:10px;">
+              <span>Not at all</span><span>Extremely interested</span>
+            </div>
+            <div class="scale-opts">
+              <div class="scale-opt" onclick="selectScale(this)"><span class="scale-num">1</span></div>
+              <div class="scale-opt" onclick="selectScale(this)"><span class="scale-num">2</span></div>
+              <div class="scale-opt" onclick="selectScale(this)"><span class="scale-num">3</span></div>
+              <div class="scale-opt" onclick="selectScale(this)"><span class="scale-num">4</span></div>
+              <div class="scale-opt selected" onclick="selectScale(this)"><span class="scale-num">5</span></div>
+            </div>
+          </div>
+          <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Other Questions in This Section:</div>
+            <div style="font-size:13px;color:var(--text2);line-height:2;">• Working with data and analytics<br>• Designing user interfaces<br>• Teaching or mentoring others<br>• Creative writing or storytelling</div>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <button class="btn btn-outline btn-sm">← Previous</button>
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="goTo('processing')">Submit All →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 14: AI PROCESSING
+      ══════════════════════════════════ -->
+      <div class="page" id="processing" data-name="AI Processing">
+        <div style="position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;">
+          <div class="splash-bg"><div class="splash-orb orb1" style="opacity:0.15;"></div><div class="splash-orb orb3" style="opacity:0.1;"></div></div>
+          <div style="position:relative;z-index:1;width:100%;">
+            <div class="processing-ring">
+              <div class="ring-outer"></div>
+              <div class="ring-inner"></div>
+              <div class="ring-center">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+              </div>
+            </div>
+            <h2 style="font-family:'Sora',sans-serif;font-size:24px;font-weight:700;margin-bottom:8px;">Analysing Your Data</h2>
+            <p style="font-size:15px;color:var(--text2);margin-bottom:32px;line-height:1.6;">Our AI is processing your assessment results and academic profile to find the best career paths for you.</p>
+            <div style="width:100%;max-width:320px;margin:0 auto;">
+              <div class="processing-step done"><div class="step-check done-check">✓</div><span style="font-size:14px;color:var(--green);">Academic profile analysed</span></div>
+              <div class="processing-step done"><div class="step-check done-check">✓</div><span style="font-size:14px;color:var(--green);">Aptitude & cognitive scores processed</span></div>
+              <div class="processing-step active"><div class="step-check active-check">⟳</div><span style="font-size:14px;color:var(--primary-light);">Personality traits mapped…</span></div>
+              <div class="processing-step"><div class="step-check pending-check"></div><span style="font-size:14px;color:var(--text3);">Generating career recommendations</span></div>
+              <div class="processing-step"><div class="step-check pending-check"></div><span style="font-size:14px;color:var(--text3);">Matching Nigerian universities</span></div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:40px;max-width:300px;" onclick="goTo('career-results')">View Results →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 15: CAREER RESULTS
+      ══════════════════════════════════ -->
+      <div class="page" id="career-results" data-name="Career Results">
+        <div style="flex:1;display:flex;flex-direction:column;">
+          <div class="results-header">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+              <div class="back-btn" onclick="goTo('assessment-hub')">←</div>
+              <div style="flex:1;">
+                <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:700;">Your Results</div>
+                <div style="font-size:13px;color:var(--text2);">Based on your full assessment</div>
+              </div>
+              <button onclick="goTo('saved');showToast('Saved!')" style="background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.2);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--primary-light);cursor:pointer;">Save All</button>
+            </div>
+            <!-- Strengths summary -->
+            <div class="card card-gradient" style="margin-bottom:0;">
+              <div style="font-size:13px;color:var(--text3);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Your Strengths Detected</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <span class="badge badge-purple">Analytical Thinking</span>
+                <span class="badge badge-green">Problem Solving</span>
+                <span class="badge badge-pink">Creative Vision</span>
+                <span class="badge badge-amber">Leadership</span>
+              </div>
+            </div>
+          </div>
+          <div class="scroll-content px" style="padding-top:16px;">
+            <div style="font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Recommended Career Paths</div>
+            
+            <div class="career-path-card" onclick="goTo('career-detail')">
+              <div class="career-rank">🥇 Primary Recommendation</div>
+              <div class="career-title">Software Engineering</div>
+              <div class="career-why">Recommended because your Physics and Maths scores show strong logical and analytical ability. Your aptitude test results indicate high problem-solving skills, and your interest inventory shows a clear passion for technology and building systems.</div>
+              <div class="career-tags">
+                <span class="career-tag badge-purple">Strong Maths</span>
+                <span class="career-tag badge-green">High Aptitude</span>
+                <span class="career-tag badge-pink">Tech Interest</span>
+              </div>
+            </div>
+
+            <div class="career-path-card c2" onclick="goTo('career-detail')">
+              <div class="career-rank">🥈 Alternative Path</div>
+              <div class="career-title">Data Science & Analytics</div>
+              <div class="career-why">Your strong performance in both Mathematics and Further Mathematics, combined with your interest in patterns and analysis, makes Data Science a highly compatible path. Nigeria's growing data economy makes this particularly relevant.</div>
+              <div class="career-tags">
+                <span class="career-tag badge-purple">Further Maths</span>
+                <span class="career-tag badge-amber">Pattern Recognition</span>
+              </div>
+            </div>
+
+            <div class="career-path-card c3" onclick="goTo('career-detail')">
+              <div class="career-rank">🥉 Broader Option</div>
+              <div class="career-title">Electrical Engineering</div>
+              <div class="career-why">Your physics aptitude and cognitive test results suggest you have the spatial reasoning and scientific thinking needed for electrical engineering, which remains in high demand across Nigerian industries.</div>
+              <div class="career-tags">
+                <span class="career-tag badge-green">Physics Strength</span>
+                <span class="career-tag badge-amber">Spatial Reasoning</span>
+              </div>
+            </div>
+
+            <div style="height:16px;"></div>
+          </div>
+          <div class="main-nav">
+            <div class="main-nav-item" onclick="goTo('assessment-hub')">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span>
+            </div>
+            <div class="main-nav-item" onclick="goTo('assessment-hub')">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Assess</span>
+            </div>
+            <div class="main-nav-item active">
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Results</span>
+            </div>
+            <div class="main-nav-item" onclick="goTo('saved')">
+              <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Saved</span>
+            </div>
+            <div class="main-nav-item" onclick="goTo('my-profile')">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 16: CAREER DETAIL (tabbed)
+      ══════════════════════════════════ -->
+      <div class="page" id="career-detail" data-name="Career Detail">
+        <div style="flex:1;display:flex;flex-direction:column;">
+          <div class="detail-hero">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+              <div class="back-btn" onclick="goTo('career-results')">←</div>
+              <div style="flex:1;"></div>
+              <button onclick="showToast('Saved!')" style="background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.2);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--primary-light);cursor:pointer;">🔖 Save</button>
+            </div>
+            <div style="display:inline-flex;background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.2);padding:6px 14px;border-radius:100px;margin-bottom:12px;">
+              <span style="font-size:12px;font-weight:600;color:var(--primary-light);">🥇 Primary Recommendation</span>
+            </div>
+            <h2 style="font-family:'Sora',sans-serif;font-size:26px;font-weight:800;margin-bottom:8px;">Software<br>Engineering</h2>
+            <p style="font-size:14px;color:var(--text2);line-height:1.6;">Design, build and maintain software systems that power the digital world — from apps to infrastructure.</p>
+          </div>
+          <div class="px" style="padding-top:16px;padding-bottom:8px;">
+            <div class="tab-nav" id="detailTabs">
+              <button class="tab-btn active" onclick="switchTab('courses')">Courses</button>
+              <button class="tab-btn" onclick="switchTab('universities')">Unis</button>
+              <button class="tab-btn" onclick="switchTab('jobs')">Jobs</button>
+              <button class="tab-btn" onclick="switchTab('people')">People</button>
+              <button class="tab-btn" onclick="switchTab('industries')">Industry</button>
+            </div>
+          </div>
+          <div class="scroll-content px" style="padding-top:4px;">
+
+            <!-- COURSES TAB -->
+            <div class="tab-content active" id="tab-courses">
+              <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Courses to study for Software Engineering in Nigeria</div>
+              <div class="course-card">
+                <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Computer Science</div>
+                <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">4–5 years · Bachelor of Science</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <span class="badge badge-green" style="font-size:11px;">Best Fit</span>
+                  <span class="badge badge-purple" style="font-size:11px;">Wide Availability</span>
+                </div>
+              </div>
+              <div class="course-card">
+                <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Software Engineering</div>
+                <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">4–5 years · Bachelor of Engineering</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <span class="badge badge-purple" style="font-size:11px;">Specialised</span>
+                </div>
+              </div>
+              <div class="course-card">
+                <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Information Technology</div>
+                <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">4 years · Bachelor of Technology</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <span class="badge badge-amber" style="font-size:11px;">Industry Focused</span>
+                </div>
+              </div>
+              <div class="course-card">
+                <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Computer Engineering</div>
+                <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">5 years · Bachelor of Engineering</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <span class="badge badge-pink" style="font-size:11px;">Hardware + Software</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- UNIVERSITIES TAB -->
+            <div class="tab-content" id="tab-universities">
+              <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Top Nigerian universities for Computer Science & Software Engineering</div>
+              <div class="uni-card">
+                <div class="uni-logo">UI</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">University of Ibadan</div>
+                  <div style="font-size:12px;color:var(--text3);">Ibadan, Oyo State · Federal</div>
+                  <div style="font-size:12px;color:var(--green);margin-top:2px;">✓ Offers Computer Science</div>
+                </div>
+                <span class="badge badge-purple" style="font-size:10px;">Top 3</span>
+              </div>
+              <div class="uni-card">
+                <div class="uni-logo">UNILAG</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">University of Lagos</div>
+                  <div style="font-size:12px;color:var(--text3);">Akoka, Lagos · Federal</div>
+                  <div style="font-size:12px;color:var(--green);margin-top:2px;">✓ Computer Science • Software Eng</div>
+                </div>
+              </div>
+              <div class="uni-card">
+                <div class="uni-logo" style="background:linear-gradient(135deg,#7C3AED,#EC4899);">OAU</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">Obafemi Awolowo University</div>
+                  <div style="font-size:12px;color:var(--text3);">Ile-Ife, Osun State · Federal</div>
+                  <div style="font-size:12px;color:var(--green);margin-top:2px;">✓ Computer Science</div>
+                </div>
+              </div>
+              <div class="uni-card">
+                <div class="uni-logo" style="background:linear-gradient(135deg,#F59E0B,#EF4444);">ABU</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">Ahmadu Bello University</div>
+                  <div style="font-size:12px;color:var(--text3);">Zaria, Kaduna · Federal</div>
+                  <div style="font-size:12px;color:var(--green);margin-top:2px;">✓ Computer Science • IT</div>
+                </div>
+              </div>
+              <div class="uni-card">
+                <div class="uni-logo" style="background:linear-gradient(135deg,#10B981,#3730A3);">UNN</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">University of Nigeria, Nsukka</div>
+                  <div style="font-size:12px;color:var(--text3);">Nsukka, Enugu · Federal</div>
+                  <div style="font-size:12px;color:var(--green);margin-top:2px;">✓ Computer Science</div>
+                </div>
+              </div>
+              <div class="uni-card">
+                <div class="uni-logo" style="background:linear-gradient(135deg,#EC4899,#F59E0B);">CU</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">Covenant University</div>
+                  <div style="font-size:12px;color:var(--text3);">Ota, Ogun State · Private</div>
+                  <div style="font-size:12px;color:var(--green);margin-top:2px;">✓ Software Eng • IT</div>
+                </div>
+                <span class="badge badge-green" style="font-size:10px;">Top Private</span>
+              </div>
+            </div>
+
+            <!-- JOBS TAB -->
+            <div class="tab-content" id="tab-jobs">
+              <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Job roles and career paths in Software Engineering</div>
+              <div class="job-row"><div class="job-dot" style="background:var(--primary-light);"></div><div style="flex:1;"><div style="font-size:14px;font-weight:600;">Frontend Developer</div><div style="font-size:12px;color:var(--text3);">Build user interfaces and web apps</div></div><span class="badge badge-green" style="font-size:11px;">High Demand</span></div>
+              <div class="job-row"><div class="job-dot" style="background:var(--secondary);"></div><div style="flex:1;"><div style="font-size:14px;font-weight:600;">Backend Developer</div><div style="font-size:12px;color:var(--text3);">Build APIs, databases and servers</div></div><span class="badge badge-green" style="font-size:11px;">High Demand</span></div>
+              <div class="job-row"><div class="job-dot" style="background:var(--accent);"></div><div style="flex:1;"><div style="font-size:14px;font-weight:600;">Full Stack Developer</div><div style="font-size:12px;color:var(--text3);">Builds both frontend and backend</div></div><span class="badge badge-amber" style="font-size:11px;">Premium</span></div>
+              <div class="job-row"><div class="job-dot" style="background:var(--green);"></div><div style="flex:1;"><div style="font-size:14px;font-weight:600;">Mobile App Developer</div><div style="font-size:12px;color:var(--text3);">iOS and Android development</div></div><span class="badge badge-purple" style="font-size:11px;">Growing</span></div>
+              <div class="job-row"><div class="job-dot" style="background:var(--yellow);"></div><div style="flex:1;"><div style="font-size:14px;font-weight:600;">DevOps Engineer</div><div style="font-size:12px;color:var(--text3);">Deployment, cloud and automation</div></div><span class="badge badge-amber" style="font-size:11px;">Senior</span></div>
+              <div class="job-row"><div class="job-dot" style="background:#818CF8;"></div><div style="flex:1;"><div style="font-size:14px;font-weight:600;">Machine Learning Engineer</div><div style="font-size:12px;color:var(--text3);">AI and model development</div></div><span class="badge badge-green" style="font-size:11px;">Future</span></div>
+            </div>
+
+            <!-- PEOPLE TAB -->
+            <div class="tab-content" id="tab-people">
+              <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Inspiring Nigerian professionals in Software Engineering</div>
+              <div class="pro-card">
+                <div class="pro-avatar" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);">AO</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">Adewale Obaseki</div>
+                  <div style="font-size:12px;color:var(--text2);">Senior Software Engineer · Google</div>
+                  <div style="font-size:12px;color:var(--text3);margin-top:2px;">OAU Graduate · 8+ years experience</div>
+                </div>
+                <a href="https://linkedin.com" target="_blank" style="background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.2);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;color:var(--primary-light);text-decoration:none;cursor:pointer;">LinkedIn →</a>
+              </div>
+              <div class="pro-card">
+                <div class="pro-avatar" style="background:linear-gradient(135deg,#EC4899,#F59E0B);">CN</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">Chidinma Nwosu</div>
+                  <div style="font-size:12px;color:var(--text2);">Tech Lead · Flutterwave</div>
+                  <div style="font-size:12px;color:var(--text3);margin-top:2px;">UNILAG Graduate · Lagos-based</div>
+                </div>
+                <a href="https://linkedin.com" target="_blank" style="background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.2);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;color:var(--primary-light);text-decoration:none;cursor:pointer;">LinkedIn →</a>
+              </div>
+              <div class="pro-card">
+                <div class="pro-avatar" style="background:linear-gradient(135deg,#10B981,#3730A3);">BI</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">Babatunde Ibrahim</div>
+                  <div style="font-size:12px;color:var(--text2);">CTO & Co-Founder · Paystack</div>
+                  <div style="font-size:12px;color:var(--text3);margin-top:2px;">UI Graduate · Acquired by Stripe</div>
+                </div>
+                <a href="https://linkedin.com" target="_blank" style="background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.2);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;color:var(--primary-light);text-decoration:none;cursor:pointer;">LinkedIn →</a>
+              </div>
+              <div class="pro-card">
+                <div class="pro-avatar" style="background:linear-gradient(135deg,#7C3AED,#EC4899);">TE</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">Temi Eniola</div>
+                  <div style="font-size:12px;color:var(--text2);">Software Architect · MTN Nigeria</div>
+                  <div style="font-size:12px;color:var(--text3);margin-top:2px;">Covenant University Graduate</div>
+                </div>
+                <a href="https://linkedin.com" target="_blank" style="background:rgba(79,70,229,0.1);border:1px solid rgba(79,70,229,0.2);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;color:var(--primary-light);text-decoration:none;cursor:pointer;">LinkedIn →</a>
+              </div>
+            </div>
+
+            <!-- INDUSTRIES TAB -->
+            <div class="tab-content" id="tab-industries">
+              <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Industries and companies hiring Software Engineers in Nigeria</div>
+              <div class="industry-card">
+                <div class="ind-icon" style="background:rgba(79,70,229,0.1);">💳</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">FinTech</div>
+                  <div style="font-size:12px;color:var(--text3);">Paystack, Flutterwave, Interswitch, Opay, PalmPay</div>
+                </div>
+                <span class="badge badge-green" style="font-size:10px;">Booming</span>
+              </div>
+              <div class="industry-card">
+                <div class="ind-icon" style="background:rgba(245,158,11,0.1);">📱</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">Telecom</div>
+                  <div style="font-size:12px;color:var(--text3);">MTN, Airtel, Glo, 9Mobile</div>
+                </div>
+                <span class="badge badge-amber" style="font-size:10px;">Stable</span>
+              </div>
+              <div class="industry-card">
+                <div class="ind-icon" style="background:rgba(16,185,129,0.1);">🛒</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">E-commerce</div>
+                  <div style="font-size:12px;color:var(--text3);">Jumia, Konga, Jiji.ng, Sendbox</div>
+                </div>
+              </div>
+              <div class="industry-card">
+                <div class="ind-icon" style="background:rgba(236,72,153,0.1);">🌍</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">Global Tech (Remote)</div>
+                  <div style="font-size:12px;color:var(--text3);">Google, Microsoft, Amazon, Meta</div>
+                </div>
+                <span class="badge badge-purple" style="font-size:10px;">Remote</span>
+              </div>
+              <div class="industry-card">
+                <div class="ind-icon" style="background:rgba(79,70,229,0.1);">🏥</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">HealthTech</div>
+                  <div style="font-size:12px;color:var(--text3);">Helium Health, Reliance HMO, Kangpe</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="height:20px;"></div>
+          </div>
+          <div class="main-nav">
+            <div class="main-nav-item" onclick="goTo('assessment-hub')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="main-nav-item" onclick="goTo('assessment-hub')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Assess</span></div>
+            <div class="main-nav-item active"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Results</span></div>
+            <div class="main-nav-item" onclick="goTo('saved')"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Saved</span></div>
+            <div class="main-nav-item" onclick="goTo('my-profile')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 17: SAVED RECOMMENDATIONS
+      ══════════════════════════════════ -->
+      <div class="page" id="saved" data-name="Saved Careers">
+        <div style="flex:1;display:flex;flex-direction:column;">
+          <div style="padding:52px 24px 20px;background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%);">
+            <div style="font-family:'Sora',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px;">Saved Careers</div>
+            <div style="font-size:14px;color:var(--text2);">Your bookmarked career paths</div>
+          </div>
+          <div class="scroll-content px" style="padding-top:16px;">
+            <div class="saved-card">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+                <div>
+                  <span class="badge badge-purple" style="font-size:11px;margin-bottom:8px;display:inline-flex;">🥇 Primary Match</span>
+                  <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;">Software Engineering</div>
+                </div>
+                <button onclick="showToast('Removed')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:0;">🔖</button>
+              </div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;">Based on your Maths, Physics strengths and tech interests</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-primary btn-sm" onclick="goTo('career-detail')">View Details</button>
+                <button class="btn btn-outline btn-sm" onclick="goTo('history')">History</button>
+              </div>
+            </div>
+            <div class="saved-card" style="--gradient:linear-gradient(135deg,#7C3AED,#EC4899);">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+                <div>
+                  <span class="badge badge-pink" style="font-size:11px;margin-bottom:8px;display:inline-flex;">🥈 Alternative</span>
+                  <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;">Data Science</div>
+                </div>
+                <button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:0;">🔖</button>
+              </div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;">Saved from your SSS2 assessment result</div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-primary btn-sm" onclick="goTo('career-detail')">View Details</button>
+              </div>
+            </div>
+            <div style="margin-top:8px;padding:20px;background:var(--surface2);border-radius:var(--radius);border:1px dashed var(--border2);text-align:center;">
+              <div style="font-size:22px;margin-bottom:8px;">🔍</div>
+              <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Explore More Careers</div>
+              <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Complete your assessments to unlock all career recommendations</div>
+              <button class="btn btn-primary btn-sm" onclick="goTo('assessment-hub')">Continue Assessments</button>
+            </div>
+          </div>
+          <div class="main-nav">
+            <div class="main-nav-item" onclick="goTo('assessment-hub')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="main-nav-item" onclick="goTo('assessment-hub')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Assess</span></div>
+            <div class="main-nav-item" onclick="goTo('career-results')"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Results</span></div>
+            <div class="main-nav-item active"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Saved</span></div>
+            <div class="main-nav-item" onclick="goTo('my-profile')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 18: ASSESSMENT HISTORY
+      ══════════════════════════════════ -->
+      <div class="page" id="history" data-name="Assessment History">
+        <div style="flex:1;display:flex;flex-direction:column;">
+          <div style="padding:52px 24px 20px;display:flex;align-items:center;gap:12px;">
+            <div class="back-btn" onclick="goTo('my-profile')">←</div>
+            <div style="flex:1;">
+              <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:700;">Assessment History</div>
+              <div style="font-size:13px;color:var(--text2);">Your career journey over time</div>
+            </div>
+          </div>
+          <div class="scroll-content px" style="padding-top:4px;">
+            <!-- Retake banner -->
+            <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;">
+              <div style="font-size:20px;">🔄</div>
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:600;color:var(--yellow);margin-bottom:2px;">Class Level Update Detected</div>
+                <div style="font-size:13px;color:var(--text2);line-height:1.5;">You've moved to SSS2. Retake your assessments to get updated career recommendations.</div>
+                <button class="btn btn-primary btn-sm" style="margin-top:10px;" onclick="goTo('assessment-hub')">Retake Assessment</button>
+              </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="history-item">
+              <div class="history-line"><div class="history-dot"></div><div class="history-line-bar"></div></div>
+              <div class="history-content">
+                <div style="font-size:12px;color:var(--text3);margin-bottom:4px;">November 2024 · SSS 2</div>
+                <div class="card" style="margin-bottom:0;">
+                  <div style="font-size:14px;font-weight:600;margin-bottom:6px;">Latest Assessment</div>
+                  <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">All 4 tests completed • Career: Software Engineering</div>
+                  <button class="btn btn-primary btn-sm" onclick="goTo('career-results')">View Results</button>
+                </div>
+              </div>
+            </div>
+            <div class="history-item">
+              <div class="history-line"><div class="history-dot" style="background:var(--text3);"></div><div class="history-line-bar"></div></div>
+              <div class="history-content">
+                <div style="font-size:12px;color:var(--text3);margin-bottom:4px;">March 2024 · SSS 1</div>
+                <div class="card" style="margin-bottom:0;">
+                  <div style="font-size:14px;font-weight:600;margin-bottom:6px;">SSS 1 Assessment</div>
+                  <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">3/4 tests completed • Career: Computer Engineering</div>
+                  <button class="btn btn-outline btn-sm" onclick="showToast('Loading history...')">View Past Results</button>
+                </div>
+              </div>
+            </div>
+            <div class="history-item">
+              <div class="history-line"><div class="history-dot" style="background:var(--text3);"></div></div>
+              <div class="history-content">
+                <div style="font-size:12px;color:var(--text3);margin-bottom:4px;">September 2023 · JSS 3</div>
+                <div class="card" style="margin-bottom:0;">
+                  <div style="font-size:14px;font-weight:600;margin-bottom:6px;">First Assessment</div>
+                  <div style="font-size:13px;color:var(--text2);">2/4 tests completed • No career match yet</div>
+                </div>
+              </div>
+            </div>
+            <div style="height:20px;"></div>
+          </div>
+          <div class="main-nav">
+            <div class="main-nav-item" onclick="goTo('assessment-hub')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="main-nav-item" onclick="goTo('assessment-hub')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Assess</span></div>
+            <div class="main-nav-item" onclick="goTo('career-results')"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Results</span></div>
+            <div class="main-nav-item" onclick="goTo('saved')"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Saved</span></div>
+            <div class="main-nav-item active"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           SCREEN 19: MY PROFILE / SETTINGS
+      ══════════════════════════════════ -->
+      <div class="page" id="my-profile" data-name="My Profile">
+        <div style="flex:1;display:flex;flex-direction:column;">
+          <div class="profile-hero">
+            <div class="avatar-big">A</div>
+            <div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;">Adaeze Okafor</div>
+            <div style="font-size:14px;color:var(--text2);margin-bottom:8px;">SSS 2 · Science Dept · Lagos</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+              <span class="badge badge-purple">Covenant College</span>
+              <span class="badge badge-green">2 Career Matches</span>
+            </div>
+          </div>
+          <div class="scroll-content px" style="padding-top:8px;">
+            <!-- Stats row -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
+              <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;">
+                <div style="font-size:22px;font-weight:700;font-family:'Sora',sans-serif;" class="grad-text">4</div>
+                <div style="font-size:11px;color:var(--text3);">Tests Done</div>
+              </div>
+              <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;">
+                <div style="font-size:22px;font-weight:700;font-family:'Sora',sans-serif;" class="grad-text">3</div>
+                <div style="font-size:11px;color:var(--text3);">Career Paths</div>
+              </div>
+              <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;">
+                <div style="font-size:22px;font-weight:700;font-family:'Sora',sans-serif;" class="grad-text">2</div>
+                <div style="font-size:11px;color:var(--text3);">Saved</div>
+              </div>
+            </div>
+
+            <!-- Settings sections -->
+            <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Account</div>
+            <div class="setting-row" onclick="goTo('profile-basic')">
+              <div class="setting-icon" style="background:rgba(79,70,229,0.1);">👤</div>
+              <div style="flex:1;"><div style="font-size:15px;font-weight:500;">Edit Profile</div><div style="font-size:13px;color:var(--text3);">Update your personal information</div></div>
+              <span style="color:var(--text3);">›</span>
+            </div>
+            <div class="setting-row" onclick="goTo('profile-academic')">
+              <div class="setting-icon" style="background:rgba(16,185,129,0.1);">📚</div>
+              <div style="flex:1;"><div style="font-size:15px;font-weight:500;">Academic Records</div><div style="font-size:13px;color:var(--text3);">Update your grades and results</div></div>
+              <span style="color:var(--text3);">›</span>
+            </div>
+
+            <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin:16px 0 10px;">Assessments</div>
+            <div class="setting-row" onclick="goTo('history')">
+              <div class="setting-icon" style="background:rgba(245,158,11,0.1);">📋</div>
+              <div style="flex:1;"><div style="font-size:15px;font-weight:500;">Assessment History</div><div style="font-size:13px;color:var(--text3);">View past results and retake tests</div></div>
+              <span style="color:var(--text3);">›</span>
+            </div>
+            <div class="setting-row" onclick="goTo('career-results')">
+              <div class="setting-icon" style="background:rgba(124,58,237,0.1);">🎯</div>
+              <div style="flex:1;"><div style="font-size:15px;font-weight:500;">Career Recommendations</div><div style="font-size:13px;color:var(--text3);">View your latest AI recommendations</div></div>
+              <span style="color:var(--text3);">›</span>
+            </div>
+
+            <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin:16px 0 10px;">App</div>
+            <div class="setting-row">
+              <div class="setting-icon" style="background:rgba(236,72,153,0.1);">🔔</div>
+              <div style="flex:1;"><div style="font-size:15px;font-weight:500;">Notifications</div><div style="font-size:13px;color:var(--text3);">Assessment reminders</div></div>
+              <div style="width:44px;height:24px;background:var(--primary);border-radius:100px;position:relative;cursor:pointer;"><div style="position:absolute;right:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;"></div></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-icon" style="background:rgba(16,185,129,0.1);">🌐</div>
+              <div style="flex:1;"><div style="font-size:15px;font-weight:500;">Language</div><div style="font-size:13px;color:var(--text3);">English (default)</div></div>
+              <span style="color:var(--text3);">›</span>
+            </div>
+            <div class="setting-row" style="border-bottom:none;" onclick="showToast('Signed out')">
+              <div class="setting-icon" style="background:rgba(239,68,68,0.1);">🚪</div>
+              <div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--red);">Sign Out</div></div>
+            </div>
+
+            <div style="height:20px;"></div>
+          </div>
+          <div class="main-nav">
+            <div class="main-nav-item" onclick="goTo('assessment-hub')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></div>
+            <div class="main-nav-item" onclick="goTo('assessment-hub')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Assess</span></div>
+            <div class="main-nav-item" onclick="goTo('career-results')"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Results</span></div>
+            <div class="main-nav-item" onclick="goTo('saved')"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Saved</span></div>
+            <div class="main-nav-item active"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /phone-screen -->
+  </div><!-- /phone -->
+</div><!-- /outer -->
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
 
 <script>
-const D = {};
+const screens = [
+  'splash','onboard','login','signup',
+  'profile-basic','profile-academic','profile-upload','profile-interests',
+  'assessment-hub','aptitude-test','cognitive-test','personality-test','interest-test',
+  'processing','career-results','career-detail',
+  'saved','history','my-profile'
+];
 
-function go(n) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('s' + n).classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function checked(name) {
-  return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(e => e.value);
-}
-
-function step1Next() {
-  const n = document.getElementById('f-name').value.trim();
-  const s = document.getElementById('f-status').value;
-  if (!n) { alert('Please enter your name.'); return; }
-  if (!s) { alert('Please select your current status.'); return; }
-  D.name = n;
-  D.age = document.getElementById('f-age').value || 'not specified';
-  D.country = document.getElementById('f-country').value || 'not specified';
-  D.status = s;
-  D.goal = document.getElementById('f-goal').value;
-  go(2);
-}
-
-function showErr(msg) {
-  const b = document.getElementById('err-box');
-  b.textContent = msg; b.style.display = 'block';
-}
-function hideErr() { document.getElementById('err-box').style.display = 'none'; }
-
-async function predict() {
-  const edu = document.getElementById('f-edu').value;
-  if (!edu) { showErr('Please select your education level.'); return; }
-  hideErr();
-
-  D.skills = checked('skill');
-  D.interests = checked('interest');
-  D.edu = edu;
-  D.ws = document.getElementById('f-ws').value || 'No preference';
-  D.sal = document.getElementById('f-sal').value || 'Not specified';
-  D.extra = document.getElementById('f-extra').value;
-
-  go(5);
-  animSteps();
-
-  const prompt = `You are a world-class career guidance AI. Analyse this person's complete profile and provide exactly 3 tailored career recommendations.
-
-PROFILE:
-Name: ${D.name}
-Age: ${D.age}
-Country: ${D.country}
-Status: ${D.status}
-Career Goal: ${D.goal || 'Not specified'}
-Skills: ${D.skills.length ? D.skills.join(', ') : 'None selected'}
-Interests: ${D.interests.length ? D.interests.join(', ') : 'None selected'}
-Education: ${D.edu}
-Work Style Preference: ${D.ws}
-Salary Target: ${D.sal}
-Extra Notes: ${D.extra || 'None'}
-
-Respond ONLY with valid JSON. No markdown backticks, no explanation text, no preamble. Strict JSON only:
-{"summary":"One warm personalised sentence mentioning their name and 2 key strengths you noticed","careers":[{"rank":1,"title":"Career Title","description":"2 sentences: why this specific person is a great fit and what excites them about this path","matchScore":92,"salary":"₦8M–₦25M / $15k–$50k","growth":"High","timeline":"3–9 months to first role","skills":["Key Skill 1","Key Skill 2","Key Skill 3","Key Skill 4"],"roadmap":"Concrete 4-step roadmap: step 1 (what to do immediately), step 2 (what to build or learn), step 3 (how to get first opportunity), step 4 (how to grow in 1–2 years)."},{"rank":2,"title":"","description":"","matchScore":83,"salary":"","growth":"Medium","timeline":"","skills":[],"roadmap":""},{"rank":3,"title":"","description":"","matchScore":75,"salary":"","growth":"Medium","timeline":"","skills":[],"roadmap":""}]}`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const raw = data.content.map(i => i.text || '').join('').replace(/```json|```/g, '').trim();
-    const result = JSON.parse(raw);
-    renderResults(result);
-    go(6);
-    confetti();
-  } catch (err) {
-    go(4);
-    showErr('AI analysis failed. Please try again. (' + err.message + ')');
+function goTo(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+    document.getElementById('phoneScreen').scrollTop = 0;
+    updateSideList(id);
   }
 }
 
-function animSteps() {
-  const ids = ['ls-a','ls-b','ls-c','ls-d'];
-  let i = 0;
-  const t = setInterval(() => {
-    if (i > 0) {
-      const prev = document.getElementById(ids[i-1]);
-      prev.classList.remove('active'); prev.classList.add('done');
-    }
-    if (i < ids.length) {
-      document.getElementById(ids[i]).classList.add('active');
-      i++;
-    } else clearInterval(t);
-  }, 950);
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-function renderResults(data) {
-  document.getElementById('res-name').textContent = 'Hey ' + D.name + '! 👋';
-  document.getElementById('res-sub').textContent = data.summary;
+function togglePwd(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
 
-  const cc = document.getElementById('cc');
-  cc.innerHTML = '';
+function selectGender(el, val) {
+  document.querySelectorAll('.gender-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
 
-  const rl = ['#1 Best Match','#2 Strong Fit','#3 Great Option'];
-  const rc = ['r1','r2','r3'];
-  const mb = ['hi','mid','ok'];
-  const gi = {High:'🚀',Medium:'📈',Low:'📊'};
+function toggleChip(el) { el.classList.toggle('selected'); }
 
-  data.careers.forEach((c, i) => {
-    const el = document.createElement('div');
-    el.className = 'ccard' + (i === 0 ? ' top' : '');
-    el.innerHTML = `
-      <div class="ctop">
-        <span class="crank ${rc[i]}">${rl[i]}</span>
-        <span class="mbadge ${mb[i]}">${c.matchScore}% match</span>
-      </div>
-      <div class="ctitle">${c.title}</div>
-      <div class="cdesc">${c.description}</div>
-      <div class="cmeta">
-        <div class="mi"><span class="mv">${c.salary}</span><div class="mk">Salary Range</div></div>
-        <div class="mi"><span class="mv">${gi[c.growth] || '📈'} ${c.growth}</span><div class="mk">Growth</div></div>
-        <div class="mi"><span class="mv">${c.timeline}</span><div class="mk">Time to Entry</div></div>
-      </div>
-      <div class="conf-row">
-        <span class="conf-lbl">AI Confidence</span>
-        <div class="conf-track"><div class="conf-fill" style="width:${c.matchScore}%"></div></div>
-        <span class="conf-pct">${c.matchScore}%</span>
-      </div>
-      <div class="chips">${c.skills.map(s => `<span class="chip">${s}</span>`).join('')}</div>
-      <div class="rdm-toggle" onclick="toggleRdm(this)">📍 View Career Roadmap <span class="rdm-arrow">▼</span></div>
-      <div class="rdm-content">${c.roadmap}</div>
-    `;
-    cc.appendChild(el);
+function selectOpt(el) {
+  const parent = el.closest('.scroll-content') || el.closest('.page');
+  parent.querySelectorAll('.answer-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectCard(el) {
+  const parent = el.closest('.page');
+  parent.querySelectorAll('.answer-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectScale(el) {
+  const parent = el.closest('.scale-opts');
+  parent.querySelectorAll('.scale-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function switchTab(name) {
+  document.querySelectorAll('#career-detail .tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#detailTabs .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Build side screen list
+function buildSideList() {
+  const list = document.getElementById('screenList');
+  list.innerHTML = '';
+  screens.forEach(id => {
+    const page = document.getElementById(id);
+    if (!page) return;
+    const name = page.getAttribute('data-name') || id;
+    const li = document.createElement('li');
+    li.textContent = name;
+    li.onclick = () => goTo(id);
+    li.setAttribute('data-id', id);
+    list.appendChild(li);
   });
 }
 
-function toggleRdm(el) {
-  const c = el.nextElementSibling;
-  const a = el.querySelector('.rdm-arrow');
-  c.classList.toggle('open');
-  a.style.transform = c.classList.contains('open') ? 'rotate(180deg)' : '';
+function updateSideList(activeId) {
+  document.querySelectorAll('#screenList li').forEach(li => {
+    li.classList.toggle('current', li.getAttribute('data-id') === activeId);
+  });
 }
 
-function confetti() {
-  const cols = ['#00d4c8','#7c6aff','#1ec997','#f59e0b','#e0f0f0','#ff6b9d'];
-  for (let i = 0; i < 70; i++) {
-    setTimeout(() => {
-      const p = document.createElement('div');
-      p.className = 'conf-piece';
-      p.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${Math.random()*9+5}px;height:${Math.random()*9+5}px;animation-duration:${Math.random()*2+2.2}s;animation-delay:${Math.random()*.8}s;border-radius:${Math.random()>0.5?'50%':'2px'}`;
-      document.body.appendChild(p);
-      setTimeout(() => p.remove(), 4500);
-    }, i * 25);
-  }
-}
-
-function shareResult() {
-  const txt = `🎯 I just got my AI career prediction with CareerIQ!\n\nIt analysed my skills and interests to find my perfect career match — took less than 2 minutes. Highly recommend trying it!\n\n#CareerIQ #CareerPrediction #AICareer`;
-  if (navigator.share) {
-    navigator.share({ title: 'My CareerIQ Results', text: txt }).catch(() => {});
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(txt).then(() => {
-      const btn = event.target;
-      const orig = btn.textContent;
-      btn.textContent = '✅ Copied!';
-      setTimeout(() => { btn.textContent = orig; }, 2000);
-    });
-  }
-}
+buildSideList();
+updateSideList('splash');
 </script>
 </body>
 </html>
