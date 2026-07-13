@@ -8,6 +8,7 @@ lightgbm
 joblib
 python-dotenv
 fastapi
-uvicorn[standard]
+uvicorn
 google-generativeai
 pytest
+python-multipart
