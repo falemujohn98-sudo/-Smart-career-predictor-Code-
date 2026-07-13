@@ -1,32 +1,32 @@
-# Smart-career-predictor-Code
+# Smart Career Predictor
 
-# Architecture, Workflow, and Verification Report
+## Architecture, Workflow, and Deployment Guide
 
-This walkthrough outlines the complete system design, architecture, database schemas, dynamic algorithms, testing results, and system lapses for the **Smart Career Predictor App**.
+This repository contains the complete system design, architecture, deployment details, and workflows for the **Smart Career Predictor App**, an AI-powered guidance platform for Nigerian secondary school students.
 
 ---
 
-## 1. System Architecture
+## 1. System Architecture (For Academic/Paper Reference)
 
-The application is structured as a decoupled web application served by a FastAPI backend:
+The application employs a decoupled architecture separating the presentation layer (frontend) from the data processing and machine learning layers (backend). This enables high scalability and flexible deployment strategies.
 
 ```mermaid
 graph TD
-    UI[Frontend: HTML/CSS/JS] -->|API Requests| API[FastAPI: main.py]
-    API -->|Query/Save| DB[(SQLite: career_hub.db)]
+    UI[Frontend: HTML/CSS/JS] -->|Fetch API Requests via HTTPS| API[FastAPI Gateway: main.py]
+    API -->|Query/Save Data| DB[(SQLite: career_hub.db)]
     API -->|Grade/Randomize| Eng[Assessment Engine: assessment_engine.py]
-    API -->|Features| ML[XGBoost Pipeline: xgb_best_model.pkl]
-    API -->|Refined Prompts| AI[Gemini Refine: gemini_refine.py]
-    AI -->|Fallback| Lcl[Nigerian Context Fallback Advice]
+    API -->|Feature Extraction| ML[XGBoost Pipeline: predict.py]
+    API -->|Prompt Generation| AI[Gemini API: gemini_refine.py]
+    AI -->|Fallback Logic| Lcl[Local Fallback Matrices]
     DB --> Eng
 ```
 
-### Components:
-1.  **Frontend Presentation Layer (`smart-career-predictor.html`)**: A responsive single-page HTML5/JS client featuring transition controls, onboarding setup panels, result uploads, and the dynamic **Assessment Hub** which runs timed, multi-choice tests.
-2.  **API Gateway Layer (`main.py`)**: Defines Pydantic models for incoming requests, exposes auth and profile endpoints, and implements `/assessment/submit` which handles multi-phase pipelines (grading $\rightarrow$ classification $\rightarrow$ LLM generation).
-3.  **Core Domain Logic (`assessment_engine.py`)**: Runs database setups, student profile writes, and dynamic randomized question session generation.
-4.  **Inference Layer (`predict.py`)**: Loads the scikit-learn preprocessing and serialized XGBoost pipelines to compute primary, secondary, and tertiary career match probabilities.
-5.  **Advisory Engine (`gemini_refine.py`)**: Translates classification indices and psychometric profiles into professional mentor reports, utilizing local fallback advice matrices when Google API key restrictions are active.
+### Core Components
+1. **Frontend Presentation Layer (`frontend/`)**: A responsive, PWA-ready Single Page Application (SPA) built with pure HTML5, CSS3, and JavaScript. It communicates asynchronously with the backend via `fetch` API, enabling deployment on static hosting platforms like GitHub Pages.
+2. **API Gateway Layer (`backend/fastapi_integration/main.py`)**: Implements RESTful architecture using FastAPI. It manages CORS headers (allowing cross-origin requests from the decoupled frontend), handles route routing, and defines Pydantic schemas for data validation.
+3. **Core Domain Logic (`assessment_engine.py`)**: Manages the psychometric testing loops, state validation, scoring mechanics, and SQLite database transactions (e.g., storing student profiles, logging assessment scores).
+4. **Inference Layer (`predict.py`)**: Utilizes a serialized `scikit-learn` pipeline and an `XGBoost` classifier to evaluate student scores across multiple domains (Aptitude, Cognitive, Interest) and outputs primary, secondary, and tertiary career probability vectors across 10 defined classes.
+5. **Advisory Engine (`gemini_refine.py`)**: Interfaces with the Google Gemini LLM API to interpret raw ML probabilities into a professional, human-readable mentor report. It includes graceful fallback mechanisms using local matrices to ensure system reliability even when API quotas are exceeded.
 
 ---
 
@@ -143,3 +143,63 @@ A suite of unit and integration tests was written and executed inside the projec
 | **Database Coupling** | Direct SQL execution inside `assessment_engine.py`. | Abstract database operations using a Repository Pattern. This makes it trivial to swap SQLite for Firebase Firestore or PostgreSQL. |
 | **Error Handlers** | Frontend fetch calls log to console upon network failure. | Implement visually clean modal cards or retry buttons on the UI to gracefully handle temporary network dropouts. |
 | **Test Platforms** | Automation browser subagents require Linux containers. | Shift to platform-agnostic headless tests (e.g. Playwright with bundled Chromium binaries) for cross-platform validation. |
+
+## 6. Deployment Workflow
+
+Because of the decoupled nature of the application, we deploy the **Frontend** and **Backend** separately.
+
+### A. Frontend Deployment (GitHub Pages)
+
+The frontend is a completely static set of files that makes network requests to the backend. It has been configured to dynamically resolve the backend URL based on its environment (localhost vs production).
+
+**Steps to Deploy to GitHub Pages:**
+1. Commit all your code and push it to a new public repository on GitHub.
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git branch -M main
+   git remote add origin https://github.com/yourusername/your-repo-name.git
+   git push -u origin main
+   ```
+2. In your GitHub repository, navigate to **Settings** > **Pages**.
+3. Under **Build and deployment**, select **Deploy from a branch**.
+4. Choose `main` as the branch and `/frontend` as the folder (or `/` if you serve the HTML directly from the root). 
+5. Save. In a few minutes, your frontend will be live at `https://yourusername.github.io/your-repo-name/frontend/smart-career-predictor.html`.
+
+### B. Backend Deployment (Docker & Render/Railway)
+
+The backend runs Python, FastAPI, and machine learning pipelines, requiring a dedicated server environment. We use **Docker** to containerize this environment, guaranteeing it behaves identically to your localhost.
+
+**Docker Architecture:**
+- `Dockerfile`: Defines a lightweight `python:3.10-slim-bullseye` image, installs the system compilers required for XGBoost, installs dependencies from `requirements.txt`, and boots the `uvicorn` server.
+- `docker-compose.yml`: Facilitates local testing of the containerized setup.
+
+**Steps to Deploy to Render:**
+1. Create a free account on [Render.com](https://render.com).
+2. Click **New +** and select **Web Service**.
+3. Connect your GitHub repository.
+4. Render will automatically detect the `Dockerfile` in your repository.
+5. Ensure the **Environment** is set to `Docker`.
+6. Add your Environment Variables under the **Advanced** tab:
+   - `GOOGLE_API_KEY` = `your_gemini_api_key_here`
+7. Click **Create Web Service**. 
+8. Render will build the Docker container and provide you with a live URL (e.g., `https://smart-career-backend.onrender.com`).
+
+### C. Linking the Frontend and Backend
+Once your backend is live on Render:
+1. Open `frontend/smart-career-predictor.html`.
+2. Locate the `API_BASE_URL` variable at the top of the script section.
+3. Update the production fallback URL to your new Render URL:
+   ```javascript
+   const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '' : 'https://smart-career-backend.onrender.com';
+   ```
+4. Commit and push this change to GitHub. GitHub Pages will automatically update, and your live frontend will now communicate securely with your live Docker backend!
+
+---
+
+## 7. Functionality Assurance (Localhost vs Production)
+
+By utilizing `CORSMiddleware` in the FastAPI backend (`allow_origins=["*"]`) and the dynamic `API_BASE_URL` in the frontend, **the application will function exactly as it did on localhost**. 
+- On `localhost`, the frontend will continue to send requests to `` (relative paths), seamlessly hitting your local Python server.
+- On `GitHub Pages`, it will append the Render URL to all requests, successfully bypassing cross-origin restrictions and delivering identical performance and behavior.
