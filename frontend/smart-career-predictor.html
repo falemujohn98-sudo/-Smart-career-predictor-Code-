@@ -900,6 +900,8 @@ select.inp option{background:var(--sf2);}
    ============================================================ */
 
 /* ── App State ── */
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '' : 'https://your-backend-url.onrender.com';
+
 const APP = {
   user: { name:'', email:'', phone:'', dob:'', gender:'', password:'' },
   school: { name:'', type:'', state:'', classLevel:'', dept:'', lang:'English' },
@@ -929,7 +931,7 @@ let DEPT_SUBJECT_MAP = {
 // Try to load authoritative mapping from backend to keep frontend and backend in sync.
 (async function loadDeptSubjects(){
   try{
-    const res = await fetch('/department_subjects');
+    const res = await fetch(API_BASE_URL + '/department_subjects');
     if(res.ok){
       const mapping = await res.json();
       // Normalize keys and ensure arrays
@@ -1201,7 +1203,7 @@ function shake(id){ const el=document.getElementById(id); if(el){el.style.border
 async function syncProfileWithBackend() {
   if (!APP.loggedIn) return;
   try {
-    await fetch('/update_profile', {
+    await fetch(API_BASE_URL + '/update_profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1223,7 +1225,7 @@ async function syncProfileWithBackend() {
 async function loadAssessmentSession() {
   const studentId = (APP.user.email || 'guest').trim();
   try {
-    const response = await fetch('/assessment/' + encodeURIComponent(studentId));
+    const response = await fetch(API_BASE_URL + '/assessment/' + encodeURIComponent(studentId));
     if (response.ok) {
       APP.assessmentSession = await response.json();
     }
@@ -1235,7 +1237,7 @@ async function loadAssessmentSession() {
 async function loadHistory() {
   const studentId = (APP.user.email || 'guest').trim();
   try {
-    const response = await fetch('/history/' + encodeURIComponent(studentId));
+    const response = await fetch(API_BASE_URL + '/history/' + encodeURIComponent(studentId));
     if (response.ok) {
       APP.history = await response.json();
     }
@@ -1255,7 +1257,7 @@ async function handleLogin() {
   }
   
   try {
-    const res = await fetch('/login', {
+    const res = await fetch(API_BASE_URL + '/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: em.value.trim(), password: pw.value })
@@ -1351,7 +1353,7 @@ async function handleSignup() {
   const gender = genderEl.querySelector('.glbl').textContent;
   
   try {
-    const res = await fetch('/signup', {
+    const res = await fetch(API_BASE_URL + '/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1392,7 +1394,7 @@ async function runRecommendationFlow(){
   const studentId = (APP.user.email || 'guest').trim();
   APP.recommendationPending = true;
   try {
-    const response = await fetch('/assessment/submit', {
+    const response = await fetch(API_BASE_URL + '/assessment/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ student_id: studentId, answers: TEST_RUNNER.answers })
@@ -1875,7 +1877,7 @@ function validateTransition(dest){
 async function loadHistory() {
   const studentId = (APP.user.email || 'guest').trim();
   try {
-    const response = await fetch('/history/' + encodeURIComponent(studentId));
+    const response = await fetch(API_BASE_URL + '/history/' + encodeURIComponent(studentId));
     if (response.ok) {
       APP.history = await response.json();
     }
@@ -2071,7 +2073,7 @@ async function handleSingleExcelUpload(input){
   formData.append('file', file);
   formData.append('level', getTargetUploadLevel());
   try{
-    const res = await fetch('/upload_results', { method: 'POST', body: formData });
+    const res = await fetch(API_BASE_URL + '/upload_results', { method: 'POST', body: formData });
     const data = await res.json();
     if(data.status==='success'){
       APP.fileUploadedGrades = data.grades || {};
@@ -2139,12 +2141,12 @@ async function saveUploadedResults(){
   const targetLevel = getTargetUploadLevel();
   try{
     const payload = { student_id: studentId, level: targetLevel, subject_grades: APP.subjectGrades, manual_grades: APP.manualGrades || {}, file_grades: APP.fileUploadedGrades || {} };
-    const res = await fetch('/save_results', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const res = await fetch(API_BASE_URL + '/save_results', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     const data = await res.json();
     if(data && (data.status==='success' || data.success)){
       T('Results saved to profile');
       if(!APP.uploaded.includes(targetLevel)) APP.uploaded.push(targetLevel);
-      await fetch('/update_profile', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ student_id: studentId, uploaded_results: JSON.stringify(payload) }) });
+      await fetch(API_BASE_URL + '/update_profile', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ student_id: studentId, uploaded_results: JSON.stringify(payload) }) });
       renderUploadSlots();
     } else {
       T('Failed to save results');
@@ -2224,12 +2226,12 @@ async function submitManualGrades() {
   const targetLevel = getTargetUploadLevel();
   try {
     const payload = { student_id: studentId, level: targetLevel, subject_grades: APP.subjectGrades, manual_grades: APP.manualGrades || {}, file_grades: APP.fileUploadedGrades || {} };
-    const res = await fetch('/save_results', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+    const res = await fetch(API_BASE_URL + '/save_results', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
     const j = await res.json();
     if(j && (j.status==='success' || j.success)){
       T('Grades saved successfully');
       if(!APP.uploaded.includes(targetLevel)) APP.uploaded.push(targetLevel);
-      await fetch('/update_profile', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ student_id: studentId, uploaded_results: JSON.stringify(payload) }) });
+      await fetch(API_BASE_URL + '/update_profile', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ student_id: studentId, uploaded_results: JSON.stringify(payload) }) });
       renderUploadSlots();
     } else {
       T('Failed to save grades');
